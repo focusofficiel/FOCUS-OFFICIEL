@@ -827,65 +827,32 @@ textarea.fi{resize:vertical;min-height:100px}
     </div>
   </div>
 
-  <!-- S5 : paiement + upload reçu -->
+  <!-- S5 : paiement Wave -->
   <div id="bs5" class="pay-page" style="display:none">
+
+    <!-- Carte Wave -->
     <div class="pay-card">
       <div class="wave-ring">W</div>
       <div class="pay-merchant" style="font-family:'Inter',sans-serif">FOCUS OFFICIEL</div>
       <div class="pay-amount">500 F CFA</div>
       <div class="pay-ref" id="p-ref">—</div>
-      <a id="wave-btn" href="#" class="btn-wave" onclick="markPaid()">
-        Payer avec Wave &nbsp; →
+      <a id="wave-btn" href="#" class="btn-wave" target="_blank" onclick="markPaid()">
+        Payer avec Wave &nbsp;→
       </a>
+      <p style="margin-top:12px;font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);line-height:1.7;text-align:center">
+        Cliquez ci-dessus pour payer via Wave.<br>
+        Revenez ensuite sur cette page pour générer votre billet.
+      </p>
     </div>
 
-    <!-- UPLOAD — visible après clic Wave -->
-    <div id="upload-sec" style="display:none">
-      <div class="upload-title">📎 Téléversez votre reçu Wave</div>
-      <div class="upload-sub">
-        Après paiement, prenez une capture d'écran de votre reçu Wave et téléversez-la. Le système vérifie automatiquement les informations avant de générer votre billet.
-      </div>
+    <!-- Bouton billet — toujours visible -->
+    <button class="btn-or" onclick="genererBillet()" style="font-family:'Inter',sans-serif;font-size:16px;margin-top:0">
+      🎫 Générer mon billet de transport
+    </button>
+    <p style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">
+      Cliquez après avoir effectué votre paiement Wave
+    </p>
 
-
-
-      
-      <!-- Upload image reçu -->
-      <div style="margin-top:1rem">
-        <label class="fl" style="margin-bottom:8px">Photo / capture d'écran du reçu</label>
-        <div class="upload-zone" id="upzone" ondragover="dragOn(event)" ondragleave="dragOff(event)" ondrop="dropFile(event)">
-          <input type="file" id="file-input" accept="image/*,.pdf" onchange="pickFile(event)">
-          <div class="upload-ico">🧾</div>
-          <div class="upload-zone-txt">
-            <strong>Appuyez pour choisir votre reçu</strong>
-            Photo, capture d'écran · JPG, PNG, PDF
-          </div>
-        </div>
-        <div class="uprev" id="uprev">
-          <div class="prev-card">
-            <div class="prev-ico" id="prev-ico">📄</div>
-            <div>
-              <div class="prev-name" id="prev-name">—</div>
-              <div class="prev-size" id="prev-size">—</div>
-            </div>
-            <button class="prev-rm" onclick="removeFile()">✕</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Étapes vérification -->
-      <div class="vs" id="vs-wrap">
-        <div class="vs-row" id="vr1"><div class="vs-ico" id="vi1">1</div>Vérification du montant (500F)…</div>
-        <div class="vs-row" id="vr2" style="opacity:.3"><div class="vs-ico" id="vi2">2</div>Validation de la fenêtre horaire…</div>
-        <div class="vs-row" id="vr3" style="opacity:.3"><div class="vs-ico" id="vi3">3</div>Contrôle du statut (Effectué)…</div>
-        <div class="vs-row" id="vr4" style="opacity:.3"><div class="vs-ico" id="vi4">4</div>Enregistrement de la réservation…</div>
-      </div>
-
-      <div id="up-err" class="aerr" style="display:none;margin-top:1rem"></div>
-
-      <button class="btn-or" id="btn-confirm" onclick="confirmReceipt()" style="margin-top:1rem;font-family:'Inter',sans-serif">
-        ✅ Vérifier et obtenir mon billet
-      </button>
-    </div>
   </div>
 
   <!-- S6 : billet -->
@@ -1234,11 +1201,11 @@ function doSubmit(){
 }
 
 function markPaid(){
-  setTimeout(()=>{
-    const sec=document.getElementById('after-pay');
-    sec.style.display='block';
-    sec.scrollIntoView({behavior:'smooth',block:'start'});
-  },800);
+  // Rien à faire — le bouton "Générer mon billet" est toujours visible
+}
+
+function genererBillet(){
+  showBillet(S.bk);
 }
 
 // ══════════════════════════════════════════════
