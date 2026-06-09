@@ -387,51 +387,40 @@ a{color:inherit;text-decoration:none}
 .btn-wave:hover{background:#12a8d8;transform:translateY(-1px)}
 
 /* UPLOAD REÇU */
-.upload-section{margin-top:1.25rem}
-.upload-title{font-size:18px;font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:8px}
-.upload-sub{font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);margin-bottom:1rem;line-height:1.6}
 
 
 
-.upload-zone{
-  border:2px dashed var(--bord);border-radius:16px;
-  padding:2rem 1.25rem;text-align:center;
-  cursor:pointer;transition:all .2s;background:var(--gris);
-  position:relative;
-}
-.upload-zone:hover,.upload-zone.drag{border-color:var(--or);background:var(--or-l)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-ico{font-size:40px;margin-bottom:.75rem}
-.upload-zone-txt strong{display:block;font-size:15px;margin-bottom:4px;color:var(--noir)}
-.upload-zone-txt{font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);line-height:1.6}
 
-.uprev{display:none;margin-top:1rem}
-.prev-card{background:var(--vert-l);border:1px solid var(--vert-b);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
-.prev-ico{font-size:28px;flex-shrink:0}
-.prev-name{font-size:14px;font-weight:600;color:var(--noir);font-family:'Inter',sans-serif}
-.prev-size{font-size:12px;color:var(--gris3);font-family:'Inter',sans-serif;margin-top:2px}
-.prev-rm{background:none;color:var(--gris3);font-size:18px;margin-left:auto;padding:4px;flex-shrink:0;transition:.15s}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 .prev-rm:hover{color:var(--rouge)}
 
 /* Champs reçu manuels */
-.receipt-fields{
-  background:var(--gris);border:2px solid var(--bord);
-  border-radius:16px;padding:1.25rem;margin-top:1rem;
-}
-.rf-title{
-  font-size:14px;font-weight:700;font-family:'Inter',sans-serif;
-  margin-bottom:.25rem;color:var(--noir);
-}
-.rf-sub{font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3);margin-bottom:1rem;line-height:1.5}
+
+
+
 
 /* Étapes vérification */
-.vs{margin-top:1rem;display:none}
-.vs-row{display:flex;align-items:center;gap:10px;padding:8px 0;font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);transition:.3s}
+
+
 .vs-row.active{color:var(--noir)}
-.vs-ico{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;background:var(--gris2);color:var(--gris3)}
-.vs-ico.ok{background:var(--vert-l);color:var(--vert);font-size:14px}
-.vs-ico.err-ico{background:var(--rouge-l);color:var(--rouge);font-size:14px}
-.spin-s{width:14px;height:14px;border:2px solid var(--or-b);border-top-color:var(--or);border-radius:50%;animation:sp .6s linear infinite}
+
+
+
+
 @keyframes sp{to{transform:rotate(360deg)}}
 
 /* ALERTS */
@@ -845,7 +834,6 @@ textarea.fi{resize:vertical;min-height:100px}
       <div class="pay-merchant" style="font-family:'Inter',sans-serif">FOCUS OFFICIEL</div>
       <div class="pay-amount">500 F CFA</div>
       <div class="pay-ref" id="p-ref">—</div>
-      <div class="pay-timer">⏱ Place réservée · <span id="timer">15:00</span></div>
       <a id="wave-btn" href="#" class="btn-wave" onclick="markPaid()">
         Payer avec Wave &nbsp; →
       </a>
@@ -1051,7 +1039,7 @@ const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
 let S = {
   page:'home', step:1, date:null,
   calM:new Date(2026,5,1), // Juillet 2025
-  lieu:null, bk:{}, timerIv:null, filePicked:false, receiptFile:null
+  lieu:null, bk:{}, timerIv:null
 };
 
 // ══════════════════════════════════════════════
@@ -1106,7 +1094,6 @@ function gS(n){
   if(n===4 && !val3()) return;
   rBook(n);
   if(n===4) fillRecap();
-  if(n===5) startTimer();
   S.step=n;
 }
 
@@ -1248,7 +1235,7 @@ function doSubmit(){
 
 function markPaid(){
   setTimeout(()=>{
-    const sec=document.getElementById('upload-sec');
+    const sec=document.getElementById('after-pay');
     sec.style.display='block';
     sec.scrollIntoView({behavior:'smooth',block:'start'});
   },800);
@@ -1258,39 +1245,23 @@ function markPaid(){
 //  TIMER
 // ══════════════════════════════════════════════
 function startTimer(){
-  if(S.timerIv)clearInterval(S.timerIv);
-  let s=15*60;
-  S.timerIv=setInterval(()=>{
-    s--;
-    const el=document.getElementById('timer');
-    if(el)el.textContent=`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toString().padStart(2,'0')}`;
-    if(s<=0){clearInterval(S.timerIv);if(el)el.closest('.pay-timer').textContent='⚠️ Délai expiré';}
-  },1000);
+  // Plus de timer nécessaire
+}
+
+function genererBillet(){
+  sendSheet({ action:'update_status', reference:S.bk.ref, statut:'Payé Wave' });
+  showBillet(S.bk);
 }
 
 // ══════════════════════════════════════════════
 //  UPLOAD REÇU
 // ══════════════════════════════════════════════
-function dragOn(e){e.preventDefault();document.getElementById('upzone').classList.add('drag');}
-function dragOff(e){document.getElementById('upzone').classList.remove('drag');}
-function dropFile(e){e.preventDefault();dragOff(e);const f=e.dataTransfer.files[0];if(f)processFile(f);}
-function pickFile(e){const f=e.target.files[0];if(f)processFile(f);}
-function processFile(file){
-  const ok=['image/jpeg','image/png','image/jpg','image/webp','application/pdf'];
-  if(!ok.includes(file.type)){showErr('up-err','Format non supporté. Utilisez JPG, PNG ou PDF.');return;}
-  if(file.size>15*1024*1024){showErr('up-err','Fichier trop volumineux (max 15 Mo).');return;}
-  hideEl('up-err');
-  document.getElementById('prev-ico').textContent=file.type.startsWith('image/')?'🖼️':'📄';
-  document.getElementById('prev-name').textContent=file.name;
-  document.getElementById('prev-size').textContent=(file.size/1024).toFixed(0)+' Ko';
-  document.getElementById('uprev').style.display='block';
-  S.filePicked=true;S.receiptFile=file;
-}
-function removeFile(){
-  document.getElementById('uprev').style.display='none';
-  document.getElementById('file-input').value='';
-  S.filePicked=false;S.receiptFile=null;
-}
+
+
+
+
+
+
 
 // ══════════════════════════════════════════════
 //  VALIDATION DU REÇU WAVE
@@ -1306,218 +1277,79 @@ function removeFile(){
 // ══════════════════════════════════════════════
 //  CONFIRMATION
 // ══════════════════════════════════════════════
-async function confirmReceipt(){
-  hideEl('up-err');
-  if(!S.filePicked){
-    showErr('up-err','⚠️ Téléversez votre reçu Wave.');
-    return;
-  }
-
-  const btn = document.getElementById('btn-confirm');
-  btn.disabled = true;
-  btn.textContent = 'Vérification…';
-
-  const vsWrap = document.getElementById('vs-wrap');
-  vsWrap.style.display = 'block';
-  setVStep(1,'spin');
-
-  try {
-    // ── Analyse locale dans le navigateur (< 2 secondes)
-    const result = await analyzeReceiptLocally(S.receiptFile);
-
-    setVStep(1,'ok');
-    await wait(200);
-    setVStep(2,'spin');
-    await wait(200);
-
-    if(!result.has_wave_logo){
-      setVStep(2,'err');
-      showErr('up-err','❌ Logo Wave non détecté. Téléversez la capture d\'écran de votre reçu Wave (avec le pingouin bleu).');
-      btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
-      return;
-    }
-
-    setVStep(2,'ok');
-    await wait(200);
-    setVStep(3,'spin');
-    await wait(200);
-
-    if(!result.has_500){
-      setVStep(3,'err');
-      showErr('up-err','❌ Montant 500F non détecté. Vérifiez que vous avez payé 500 F CFA à FOCUS OFFICIEL.');
-      btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
-      return;
-    }
-
-    setVStep(3,'ok');
-    await wait(200);
-    setVStep(4,'spin');
-    await wait(300);
-    setVStep(4,'ok');
-    await wait(200);
-
-    sendSheet({ action:'update_status', reference:S.bk.ref, statut:'Payé Wave — Reçu vérifié' });
-    showBillet(S.bk);
-
-  } catch(err) {
-    document.getElementById('vs-wrap').style.display='none';
-    showErr('up-err','⚠️ Erreur : ' + err.message);
-    btn.disabled=false;
-    btn.textContent='✅ Vérifier et obtenir mon billet';
-  }
-}
+async 
 
 // ══════════════════════════════════════════════
 //  ANALYSE LOCALE — canvas + reconnaissance couleur/texte
 //  Détecte le bleu Wave (#1ABEF5) et le texte "500"
 //  Tout se fait dans le navigateur, < 1 seconde
 // ══════════════════════════════════════════════
-function analyzeReceiptLocally(file){
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
 
-    img.onload = () => {
-      try {
-        const canvas  = document.createElement('canvas');
-        // Réduire la taille pour aller plus vite
-        const maxW    = 600;
-        const scale   = Math.min(1, maxW / img.width);
-        canvas.width  = Math.floor(img.width  * scale);
-        canvas.height = Math.floor(img.height * scale);
-
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-
-        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        const pixels    = imageData.data;
-
-        // ── 1. Détecter le bleu Wave (#1ABEF5 = R:26, G:190, B:245)
-        // On cherche des pixels proches de cette couleur
-        let waveBlueCount = 0;
-        for(let p = 0; p < pixels.length; p += 4){
-          const r = pixels[p], g = pixels[p+1], b = pixels[p+2];
-          // Tolérance large : bleu clair typique Wave ou cyan
-          if(r < 100 && g > 140 && b > 180 && b > r + 80 && b > g - 80){
-            waveBlueCount++;
-          }
-        }
-        const totalPixels  = canvas.width * canvas.height;
-        const blueRatio    = waveBlueCount / totalPixels;
-        const has_wave_logo = blueRatio > 0.005; // Au moins 0.5% de pixels bleu Wave
-
-        // ── 2. Détecter "500" via OCR léger (canvas text sampling)
-        // On convertit en niveaux de gris et cherche des zones sombres
-        // correspondant à des chiffres sur fond clair
-        // Méthode : on analyse les contrastes caractéristiques du montant
-        // Alternative fiable : on cherche dans les données brutes
-        // En pratique sur un reçu Wave, "500" est toujours visible et gros
-
-        // Approche simple mais efficace :
-        // Convertir l'image en texte via un mini-OCR basé sur les blocs de pixels
-        // Pour les reçus Wave, le "500" est toujours en texte noir sur fond blanc/gris
-        // On cherche des zones avec un contraste fort dans la partie centrale-droite
-        // (où le montant est affiché sur un reçu Wave)
-
-        // Méthode 2 : regarder si l'image a les caractéristiques d'un reçu Wave
-        // (fond gris clair + texte sombre + zone bleue)
-        let darkPixelCount = 0;
-        let lightPixelCount = 0;
-        for(let p = 0; p < pixels.length; p += 4){
-          const r = pixels[p], g = pixels[p+1], b = pixels[p+2];
-          const lum = 0.299*r + 0.587*g + 0.114*b;
-          if(lum < 80) darkPixelCount++;
-          if(lum > 200) lightPixelCount++;
-        }
-        const darkRatio  = darkPixelCount / totalPixels;
-        const lightRatio = lightPixelCount / totalPixels;
-
-        // Un reçu Wave typique : fond clair (>40%) + texte sombre (>5%) + bleu Wave
-        const looksLikeReceipt = lightRatio > 0.3 && darkRatio > 0.03;
-
-        // ── 3. Pour "500" : on utilise l'API Tesseract si dispo, sinon
-        // on fait confiance à la présence du logo Wave + aspect reçu
-        // Dans ce cas : si logo Wave détecté + image ressemble à un reçu → 500 présumé présent
-        // (le montant de 500F est le seul montant possible sur cette plateforme)
-        const has_500 = looksLikeReceipt; // Si c'est un reçu Wave, c'est forcément 500F
-
-        URL.revokeObjectURL(url);
-        resolve({ has_wave_logo, has_500, blueRatio: blueRatio.toFixed(4) });
-
-      } catch(e){
-        URL.revokeObjectURL(url);
-        reject(new Error('Impossible de lire l\'image : ' + e.message));
-      }
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error('Image invalide ou corrompue.'));
-    };
-
-    img.src = url;
-  });
-}
 
 
 
 // Convertir fichier en base64
-function fileToBase64(file){
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result.split(',')[1]);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
 
-async function animVStep(n,state,ms,rowId){
-  const row=document.getElementById(rowId);
-  const ico=document.getElementById('vi'+n);
-  row.style.opacity='1';
-  row.classList.add('active');
-  ico.className='vs-ico';
-  ico.innerHTML='<div class="spin-s"></div>';
-  await wait(ms);
-  ico.className='vs-ico ok';
-  ico.innerHTML='✓';
-}
+
+
 function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 
 // ══════════════════════════════════════════════
 //  AFFICHAGE BILLET
 // ══════════════════════════════════════════════
 function showBillet(bk){
-  if(S.timerIv)clearInterval(S.timerIv);
+  if(S.timerIv) clearInterval(S.timerIv);
   rBook(6);
-  const logo=document.getElementById('nav-logo').src;
-  const lieu=LIEUX.find(l=>l.name===bk.lieu)||{name:bk.lieu,time:bk.lieuTime};
 
-  // Générer un token signé pour le QR code
-  const issued = new Date().toISOString();
+  const logo = document.getElementById('nav-logo').src;
+  const lieu = LIEUX.find(l => l.name === bk.lieu) || { name: bk.lieu, time: bk.lieuTime };
+  const issued = new Date();
+
+  // QR code token
   const qrData = JSON.stringify({
-    ref: bk.ref,
-    nom: bk.prenom + ' ' + bk.nom,
-    tel: bk.tel,
-    date: bk.ds,
-    lieu: bk.lieu,
-    montant: 500,
-    issued: issued,
-    valid: true
+    ref: bk.ref, nom: bk.prenom+' '+bk.nom,
+    tel: bk.tel, date: bk.ds, lieu: bk.lieu,
+    montant: 500, issued: issued.toISOString(), valid: true
   });
-  // Encoder en base64 pour le QR
-  const qrToken = btoa(unescape(encodeURIComponent(qrData)));
-  // URL de vérification (page admin scanner)
-  const verifyUrl = window.location.origin + window.location.pathname.replace('index.html','') + 'verifier.html?t=' + qrToken;
+  const qrToken  = btoa(unescape(encodeURIComponent(qrData)));
+  const verifyUrl= window.location.origin + window.location.pathname.replace('index.html','') + 'verifier.html?t=' + qrToken;
 
-  document.getElementById('bs6').innerHTML=`
+  // Enregistrer dans le sheet
+  sendSheet({ action:'update_status', reference: bk.ref, statut:'Billet émis' });
+
+  document.getElementById('bs6').innerHTML = `
   <div class="billet-page">
+
+    <!-- HERO confirmation -->
     <div class="conf-hero">
       <div class="chk">✓</div>
-      <div class="cref-l">Paiement confirmé — Billet émis</div>
+      <div class="cref-l">Réservation confirmée</div>
       <div class="cref">${bk.ref}</div>
-      <div class="cmsg">Montrez ce billet au chauffeur à l'embarquement</div>
+      <div class="cmsg">Merci ${bk.prenom} ! Votre place est réservée.</div>
     </div>
+
+    <!-- MESSAGE RDV -->
+    <div style="background:var(--or-l);border-left:4px solid var(--or);padding:16px 20px;margin:1.25rem 1.25rem 0;border-radius:0 12px 12px 0;font-family:'Inter',sans-serif;line-height:1.8">
+      <div style="font-size:15px;font-weight:700;color:var(--noir);margin-bottom:6px">📅 Votre rendez-vous</div>
+      <div style="font-size:14px;color:var(--noir)">
+        Soyez à <strong>${lieu.name}</strong><br>
+        le <strong>${bk.ds.charAt(0).toUpperCase()+bk.ds.slice(1)}</strong><br>
+        à <strong style="font-size:17px;color:#B8860B">${lieu.time}</strong>
+      </div>
+    </div>
+
+    <!-- MESSAGE REÇU -->
+    <div style="background:#E8F5E9;border-left:4px solid #4CAF7D;padding:14px 20px;margin:10px 1.25rem 0;border-radius:0 12px 12px 0;font-family:'Inter',sans-serif;font-size:13px;color:#2E7D32;line-height:1.7">
+      📱 <strong>Important :</strong> Présentez votre <strong>reçu Wave</strong> à l'agent FOCUS avant de monter à bord. Aucun reçu = aucun accès au car.
+    </div>
+
+    <!-- MESSAGE REMERCIEMENT -->
+    <div style="text-align:center;padding:1.25rem 1.25rem 0;font-family:'Inter',sans-serif;color:var(--gris3);font-size:14px;line-height:1.8">
+      🙏 Merci de faire confiance à <strong style="color:var(--noir)">FOCUS Transport</strong>.<br>
+      Nous vous souhaitons un excellent trajet !
+    </div>
+
+    <!-- BILLET -->
     <div class="bwrap">
       <div class="billet">
         <div class="bh">
@@ -1525,47 +1357,50 @@ function showBillet(bk){
             <img src="${logo}" class="bh-logo" alt="FOCUS">
             <div class="bh-name">FOCUS Transport</div>
           </div>
-          <div class="bh-ok">✓ PAYÉ</div>
+          <div class="bh-ok">✓ RÉSERVÉ</div>
         </div>
         <div class="bdiv"></div>
         <div class="br"><span class="k">Passager</span><span class="v">${bk.prenom} ${bk.nom}</span></div>
         <div class="br"><span class="k">Téléphone</span><span class="v">${bk.tel}</span></div>
         <div class="br"><span class="k">Trajet</span><span class="v">TER Keur Mbaye Fall → Colobane</span></div>
         <div class="br"><span class="k">Date</span><span class="v">${bk.ds.charAt(0).toUpperCase()+bk.ds.slice(1)}</span></div>
-        <div class="br"><span class="k">Départ Gare TER</span><span class="v gold">6h15 · Péage avant 6h30</span></div>
-        <div class="br"><span class="k">Prise en charge</span><span class="v gold">${lieu.name} (${lieu.time})</span></div>
-        <div class="br"><span class="k">Type</span><span class="v">${bk.typeLabel}</span></div>
-        <div class="br"><span class="k">Montant payé</span><span class="v gold">500 F CFA</span></div>
+        <div class="br"><span class="k">Départ Gare TER</span><span class="v gold">6h15</span></div>
+        <div class="br"><span class="k">Prise en charge</span><span class="v gold">${lieu.name} · ${lieu.time}</span></div>
+        <div class="br"><span class="k">Montant payé</span><span class="v gold">500 F CFA · Wave</span></div>
         <div class="br"><span class="k">Référence</span><span class="v gold" style="font-family:'Courier New',monospace;letter-spacing:1px">${bk.ref}</span></div>
-
-        <div class="br"><span class="k">Paiement</span><span class="v green">✓ Wave · FOCUS OFFICIEL</span></div>
-        <div class="br"><span class="k">Reçu vérifié</span><span class="v green">✓ Validé</span></div>
       </div>
     </div>
-    <div style="background:#FFF8E1;border-left:4px solid #FFC000;padding:12px 16px;margin:0 1.25rem 1rem;border-radius:0 10px 10px 0;font-family:'Inter',sans-serif;font-size:13px;color:#5D4037;line-height:1.6">
-      ⚠️ <strong>Rappel :</strong> Soyez à votre arrêt avant l'heure indiquée. Le car ne peut pas vous attendre. Le paiement n'est pas remboursable en cas d'absence.
+
+    <!-- QR CODE -->
+    <div class="qr-section">
+      <div class="qr-label">QR Code de vérification — à scanner par l'agent</div>
+      <div id="qr-canvas"></div>
+      <div class="qr-ref">${bk.ref}</div>
     </div>
-    <div style="padding:0 1.25rem 2rem;display:flex;flex-direction:column;gap:10px">
+
+    <!-- ACTIONS -->
+    <div style="padding:0 1.25rem 2rem;display:flex;flex-direction:column;gap:10px;margin-top:1rem">
       <button class="btn-or" onclick="go('home')" style="font-family:'Inter',sans-serif">🏠 Retour à l'accueil</button>
       <button class="btn-out" onclick="window.print()" style="font-family:'Inter',sans-serif">🖨️ Imprimer le billet</button>
     </div>
+
   </div>`;
-  window.scrollTo(0,0);
-  // Générer le QR code après rendu du DOM
+
+  window.scrollTo(0, 0);
+
+  // Générer le QR code
   setTimeout(() => {
-    const qrEl = document.getElementById('qr-canvas');
-    if(qrEl && typeof QRCode !== 'undefined'){
-      new QRCode(qrEl, {
-        text: verifyUrl,
-        width: 160,
-        height: 160,
-        colorDark: '#1A1A1A',
-        colorLight: '#ffffff',
+    const el = document.getElementById('qr-canvas');
+    if(el && typeof QRCode !== 'undefined'){
+      new QRCode(el, {
+        text: verifyUrl, width:160, height:160,
+        colorDark:'#1A1A1A', colorLight:'#ffffff',
         correctLevel: QRCode.CorrectLevel.H
       });
     }
-  }, 100);
+  }, 150);
 }
+
 
 // ══════════════════════════════════════════════
 //  AVIS
