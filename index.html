@@ -391,13 +391,7 @@ a{color:inherit;text-decoration:none}
 .upload-title{font-size:18px;font-weight:700;margin-bottom:.3rem;display:flex;align-items:center;gap:8px}
 .upload-sub{font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);margin-bottom:1rem;line-height:1.6}
 
-/* Fenêtre de validité */
-.validity-window{
-  background:var(--or-l);border:1.5px solid var(--or-b);
-  border-radius:12px;padding:12px 14px;margin-bottom:1rem;
-  font-family:'Inter',sans-serif;font-size:13px;color:var(--noir);line-height:1.6;
-}
-.validity-window strong{color:var(--noir)}
+
 
 .upload-zone{
   border:2px dashed var(--bord);border-radius:16px;
@@ -779,9 +773,7 @@ textarea.fi{resize:vertical;min-height:100px}
       </div>
     </div>
 
-    <div id="booking-closed" class="ainfo" style="display:none">
-      ℹ️ Les réservations ouvrent le <strong>Mercredi 10 juin 2026</strong>. Revenez à partir de cette date pour réserver votre place.
-    </div>
+
 
     <div id="cal-wrap">
       <p style="font-family:'Inter',sans-serif;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--gris3);margin-bottom:.75rem">Choisissez votre date de départ</p>
@@ -866,11 +858,7 @@ textarea.fi{resize:vertical;min-height:100px}
         Après paiement, prenez une capture d'écran de votre reçu Wave et téléversez-la. Le système vérifie automatiquement les informations avant de générer votre billet.
       </div>
 
-      <!-- Fenêtre de validité -->
-      <div class="validity-window" id="validity-info">
-        ⏰ <strong>Créneau valide :</strong> <span id="validity-txt">—</span>
-        <br>Tout reçu en dehors de cette plage horaire sera rejeté.
-      </div>
+
 
       
       <!-- Upload image reçu -->
@@ -1082,44 +1070,20 @@ function go(p){
 //  Ouverture : 2 jours avant à 9h00
 //  Fermeture : la veille à 17h00
 // ══════════════════════════════════════════════
-function isBookingOpen(){
-  const now = new Date();
-  // Les premières réservations ne démarrent pas avant le 7 juillet
-  if(now < new Date(2026,5,8,9,0,0)) return false; // Avant le 8 juin 9h
-  return true;
-}
+function isBookingOpen(){ return true; }
 
 function isDateBookable(tripDate){
   const now  = new Date();
   const trip = new Date(tripDate); trip.setHours(0,0,0,0);
-
-  // Pas avant le 7 juillet 2025
   if(trip < FIRST_TRIP_DATE) return false;
-
-  // Doit être un jour ouvré
   const dow = trip.getDay();
   if(dow < 1 || dow > 5) return false;
-
-  // Ouverture : 2 jours avant à 9h00
-  const openTime = new Date(trip);
-  openTime.setDate(trip.getDate() - 2);
-  openTime.setHours(9,0,0,0);
-
-  // Fermeture : la veille à 17h00
-  const closeTime = new Date(trip);
-  closeTime.setDate(trip.getDate() - 1);
-  closeTime.setHours(17,0,0,0);
-
-  return now >= openTime && now <= closeTime;
+  // Pas dans le passé
+  const today = new Date(); today.setHours(0,0,0,0);
+  return trip >= today;
 }
 
-function getValidityWindow(tripDate){
-  const trip = new Date(tripDate); trip.setHours(0,0,0,0);
-  const open = new Date(trip); open.setDate(trip.getDate()-2); open.setHours(9,0,0,0);
-  const close= new Date(trip); close.setDate(trip.getDate()-1); close.setHours(17,0,0,0);
-  const fmt = d => d.toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'short'})+' à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-  return { open, close, txt:`Du ${fmt(open)} au ${fmt(close)}` };
-}
+
 
 function checkBookingOpen(){
   const closed = document.getElementById('booking-closed');
@@ -1268,11 +1232,7 @@ function doSubmit(){
 
   S.bk={ref,prenom,nom,tel,lieu:lieu.name,lieuTime:lieu.time,amount:500,ds,typeLabel:'Aller simple'};
 
-  // Fenêtre de validité pour ce trajet
-  const vw=getValidityWindow(S.date);
-  S.bk.validityOpen =vw.open;
-  S.bk.validityClose=vw.close;
-  document.getElementById('validity-txt').textContent=vw.txt;
+
 
   sendSheet({action:'booking',reference:ref,prenom,nom,tel,
     lieu:lieu.name,date:ds,type:'Aller simple',montant:500,
