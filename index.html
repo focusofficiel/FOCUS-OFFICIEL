@@ -841,17 +841,19 @@ textarea.fi{resize:vertical;min-height:100px}
       </a>
       <p style="margin-top:12px;font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);line-height:1.7;text-align:center">
         Cliquez ci-dessus pour payer via Wave.<br>
-        Revenez ensuite sur cette page pour générer votre billet.
+        Le bouton de génération du billet apparaîtra après.
       </p>
     </div>
 
-    <!-- Bouton billet — toujours visible -->
-    <button class="btn-or" onclick="genererBillet()" style="font-family:'Inter',sans-serif;font-size:16px;margin-top:0">
-      🎫 Générer mon billet de transport
-    </button>
-    <p style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">
-      Cliquez après avoir effectué votre paiement Wave
-    </p>
+    <!-- Bouton billet — CACHÉ, apparaît seulement après clic sur Wave -->
+    <div id="after-pay" style="display:none;margin-top:0">
+      <button class="btn-or" onclick="genererBillet()" style="font-family:'Inter',sans-serif;font-size:16px">
+        🎫 Générer mon billet de transport
+      </button>
+      <p style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">
+        Votre paiement Wave a bien été effectué ? Cliquez ici.
+      </p>
+    </div>
 
   </div>
 
@@ -985,7 +987,7 @@ textarea.fi{resize:vertical;min-height:100px}
 //  CONFIG
 // ══════════════════════════════════════════════
 const WAVE_URL  = 'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/';
-const SHEET_URL = 'https://script.google.com/macros/s/VOTRE_SCRIPT_ID/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsI92vJcvXFAPC3MHwvnsPIhZO8I6l4svxBC2CMs2-qwywFtnz9My72nGKHlq3lX07tQ/exec';
 
 // Première date de réservation disponible : Lundi 7 juillet 2025
 // (Les réservations ouvrent 2 jours avant, donc le 5 juillet pour le 7 juillet)
@@ -1201,7 +1203,14 @@ function doSubmit(){
 }
 
 function markPaid(){
-  // Rien à faire — le bouton "Générer mon billet" est toujours visible
+  // Afficher le bouton billet après clic sur Wave
+  setTimeout(()=>{
+    const sec = document.getElementById('after-pay');
+    if(sec){
+      sec.style.display = 'block';
+      sec.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }, 800);
 }
 
 function genererBillet(){
