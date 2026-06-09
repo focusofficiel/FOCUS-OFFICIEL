@@ -674,7 +674,7 @@ textarea.fi{resize:vertical;min-height:100px}
   <!-- TARIFS -->
   <div class="section alt">
     <div class="section-title">Nos tarifs</div>
-    <div class="section-sub">Transparents, sans frais cachés · Réservations ouvertes à partir du Lundi 6 juillet 2025</div>
+    <div class="section-sub">Transparents, sans frais cachés · Réservations ouvertes à partir du Mercredi 10 juin 2026</div>
     <div class="tg">
       <div class="tc star">
         <div class="tc-badge">Disponible</div>
@@ -773,7 +773,7 @@ textarea.fi{resize:vertical;min-height:100px}
     </div>
 
     <div id="booking-closed" class="ainfo" style="display:none">
-      ℹ️ Les réservations ouvrent le <strong>Lundi 6 juillet 2025</strong>. Revenez à partir de cette date pour réserver votre place.
+      ℹ️ Les réservations ouvrent le <strong>Mercredi 10 juin 2026</strong>. Revenez à partir de cette date pour réserver votre place.
     </div>
 
     <div id="cal-wrap">
@@ -868,25 +868,25 @@ textarea.fi{resize:vertical;min-height:100px}
       <!-- Champs à saisir manuellement depuis le reçu -->
       <div class="receipt-fields">
         <div class="rf-title">📋 Informations de votre reçu Wave</div>
-        <div class="rf-sub">Saisissez exactement les informations affichées sur votre reçu Wave (en anglais). Ces données servent à vérifier votre paiement.</div>
+        <div class="rf-sub">Saisissez exactement les informations affichées sur votre reçu Wave. Le reçu doit afficher : Type de transaction = Paiement, Montant = 500F, Statut = Effectué.</div>
 
         <div class="fg">
-          <label class="fl">Sold to (Nom de l'envoyeur)</label>
-          <input class="fi" id="rc-name" placeholder="Ex: Moussa Diallo">
+          <label class="fl">Acheteur (Nom affiché sur le reçu)</label>
+          <input class="fi" id="rc-name" placeholder="Ex: Serge M I S">
         </div>
         <div class="fr">
           <div class="fg">
-            <label class="fl">Net Amount (Montant net)</label>
-            <input class="fi" id="rc-amount" placeholder="Ex: 500" type="number">
+            <label class="fl">Montant (affiché sur le reçu)</label>
+            <input class="fi" id="rc-amount" placeholder="500" type="number">
           </div>
           <div class="fg">
-            <label class="fl">Wave Fee (Frais Wave ~10%)</label>
-            <input class="fi" id="rc-fee" placeholder="Ex: 50" type="number">
+            <label class="fl">Frais Wave (affiché sur le reçu)</label>
+            <input class="fi" id="rc-fee" placeholder="Ex: 0" type="number">
           </div>
         </div>
         <div class="fg">
-          <label class="fl">Transaction ID</label>
-          <input class="fi" id="rc-txid" placeholder="Ex: TXN123456789">
+          <label class="fl">ID de transaction (commence par T_)</label>
+          <input class="fi" id="rc-txid" placeholder="Ex: T_UODMIW2D5HZD-VS3C">
         </div>
         <div class="fr">
           <div class="fg">
@@ -899,8 +899,8 @@ textarea.fi{resize:vertical;min-height:100px}
           </div>
         </div>
         <div class="fg">
-          <label class="fl">Status (Statut)</label>
-          <input class="fi" id="rc-status" placeholder="Ex: Completed">
+          <label class="fl">Statut (affiché sur le reçu)</label>
+          <input class="fi" id="rc-status" placeholder="Ex: Effectué">
         </div>
       </div>
 
@@ -929,9 +929,9 @@ textarea.fi{resize:vertical;min-height:100px}
 
       <!-- Étapes vérification -->
       <div class="vs" id="vs-wrap">
-        <div class="vs-row" id="vr1"><div class="vs-ico" id="vi1">1</div>Vérification du montant (500 F CFA)…</div>
+        <div class="vs-row" id="vr1"><div class="vs-ico" id="vi1">1</div>Vérification du montant (500F)…</div>
         <div class="vs-row" id="vr2" style="opacity:.3"><div class="vs-ico" id="vi2">2</div>Validation de la fenêtre horaire…</div>
-        <div class="vs-row" id="vr3" style="opacity:.3"><div class="vs-ico" id="vi3">3</div>Contrôle du statut (Completed)…</div>
+        <div class="vs-row" id="vr3" style="opacity:.3"><div class="vs-ico" id="vi3">3</div>Contrôle du statut (Effectué)…</div>
         <div class="vs-row" id="vr4" style="opacity:.3"><div class="vs-ico" id="vi4">4</div>Enregistrement de la réservation…</div>
       </div>
 
@@ -1077,7 +1077,7 @@ const SHEET_URL = 'https://script.google.com/macros/s/VOTRE_SCRIPT_ID/exec';
 
 // Première date de réservation disponible : Lundi 7 juillet 2025
 // (Les réservations ouvrent 2 jours avant, donc le 5 juillet pour le 7 juillet)
-const FIRST_TRIP_DATE = new Date(2025, 6, 7); // 7 juillet 2025
+const FIRST_TRIP_DATE = new Date(2026, 5, 10); // 10 juin 2026
 
 const LIEUX = [
   { id:'A', name:'Gare TER Keur Mbaye Fall', note:'Point de départ principal', time:'6h15' },
@@ -1116,7 +1116,7 @@ function go(p){
 function isBookingOpen(){
   const now = new Date();
   // Les premières réservations ne démarrent pas avant le 7 juillet
-  if(now < new Date(2025,6,5,9,0,0)) return false; // Avant le 5 juil 9h
+  if(now < new Date(2026,5,8,9,0,0)) return false; // Avant le 8 juin 9h
   return true;
 }
 
@@ -1413,7 +1413,7 @@ function validateReceipt(){
     return {ok:false,msg:'Veuillez joindre la photo ou capture d\'écran de votre reçu Wave.'};
   }
 
-  return {ok:true, data:{name,amount,txid,receiptDT,status}};
+  return {ok:true, data:{acheteur, montant, txid, receiptDT, statut}};
 }
 
 // ══════════════════════════════════════════════
@@ -1497,7 +1497,7 @@ function showBillet(bk, rcData){
         <div class="br"><span class="k">Type</span><span class="v">${bk.typeLabel}</span></div>
         <div class="br"><span class="k">Montant payé</span><span class="v gold">500 F CFA</span></div>
         <div class="br"><span class="k">Référence</span><span class="v gold" style="font-family:'Courier New',monospace;letter-spacing:1px">${bk.ref}</span></div>
-        <div class="br"><span class="k">Transaction Wave</span><span class="v" style="font-family:'Courier New',monospace;font-size:12px">${rcData.txid}</span></div>
+        <div class="br"><span class="k">ID de transaction</span><span class="v" style="font-family:'Courier New',monospace;font-size:12px">${rcData.txid}</span></div>
         <div class="br"><span class="k">Paiement</span><span class="v green">✓ Wave · FOCUS OFFICIEL</span></div>
         <div class="br"><span class="k">Reçu vérifié</span><span class="v green">✓ Validé</span></div>
       </div>
