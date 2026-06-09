@@ -636,33 +636,33 @@ textarea.fi{resize:vertical;min-height:100px}
           </div>
           <div class="rs">
             <div class="rs-dot">B</div>
-            <div><div class="rs-name">Grand Mbao (Côté Elton)</div><div class="rs-note">Arrêt de prise en charge</div></div>
-            <div class="rs-time">~6h22</div>
+            <div><div class="rs-name">Rond Point Grand Mbao</div><div class="rs-note">Arrêt de prise en charge</div></div>
+            <div class="rs-time">6h18</div>
           </div>
           <div class="rs">
             <div class="rs-dot">C</div>
-            <div><div class="rs-name">Keur Mbaye Fall (Diouma Dji)</div><div class="rs-note">Arrêt de prise en charge</div></div>
-            <div class="rs-time">~6h28</div>
+            <div><div class="rs-name">Diouma Dji</div><div class="rs-note">Keur Mbaye Fall - Diouma Dji</div></div>
+            <div class="rs-time">6h22</div>
           </div>
           <div class="rs">
             <div class="rs-dot">D</div>
             <div><div class="rs-name">Arrêt Car</div><div class="rs-note">Arrêt de prise en charge</div></div>
-            <div class="rs-time">~6h33</div>
+            <div class="rs-time">6h24</div>
           </div>
           <div class="rs">
             <div class="rs-dot">E</div>
             <div><div class="rs-name">Croisement Keur Massar</div><div class="rs-note">Dernier arrêt de prise en charge</div></div>
-            <div class="rs-time">~6h38</div>
+            <div class="rs-time">6h28</div>
           </div>
           <div class="rs">
             <div class="rs-dot" style="background:rgba(255,192,0,.15)">→</div>
-            <div><div class="rs-name" style="color:rgba(255,255,255,.5)">Autoroute à Péage</div><div class="rs-note">Transit direct</div></div>
-            <div class="rs-time" style="color:rgba(255,255,255,.3)">—</div>
+            <div><div class="rs-name" style="color:rgba(255,255,255,.5)">Autoroute à Péage</div><div class="rs-note">Passage avant 6h30</div></div>
+            <div class="rs-time" style="color:rgba(255,255,255,.5)">< 6h30</div>
           </div>
           <div class="rs">
             <div class="rs-dot end">Z</div>
             <div><div class="rs-name">Colobane</div><div class="rs-note">Terminus</div></div>
-            <div class="rs-time">~7h10</div>
+            <div class="rs-time">< 7h30</div>
           </div>
         </div>
       </div>
@@ -825,7 +825,7 @@ textarea.fi{resize:vertical;min-height:100px}
     <div class="rc">
       <div class="rr"><span class="k">Trajet</span><span class="v">TER Keur Mbaye Fall → Colobane</span></div>
       <div class="rr"><span class="k">Date</span><span class="v" id="r-d">—</span></div>
-      <div class="rr"><span class="k">Départ</span><span class="v">6h15 — Gare TER</span></div>
+      <div class="rr"><span class="k">Départ</span><span class="v">6h15 · Arrivée Colobane avant 7h30</span></div>
       <div class="rr"><span class="k">Prise en charge</span><span class="v" id="r-l">—</span></div>
       <div class="rr"><span class="k">Passager</span><span class="v" id="r-p">—</span></div>
       <div class="rr"><span class="k">Téléphone</span><span class="v" id="r-t">—</span></div>
@@ -1080,11 +1080,11 @@ const SHEET_URL = 'https://script.google.com/macros/s/VOTRE_SCRIPT_ID/exec';
 const FIRST_TRIP_DATE = new Date(2026, 5, 10); // 10 juin 2026
 
 const LIEUX = [
-  { id:'A', name:'Gare TER Keur Mbaye Fall', note:'Point de départ principal', time:'6h15' },
-  { id:'B', name:'Grand Mbao (Côté Elton)',  note:'Arrêt de prise en charge',  time:'~6h22' },
-  { id:'C', name:'KMF Diouma Dji',           note:'Keur Mbaye Fall - Diouma Dji', time:'~6h28' },
-  { id:'D', name:'Arrêt Car',                note:'Arrêt de prise en charge',  time:'~6h33' },
-  { id:'E', name:'Croisement Keur Massar',   note:'Dernier arrêt de prise',    time:'~6h38' },
+  { id:'A', name:'Gare TER Keur Mbaye Fall',       note:'Point de départ principal',      time:'6h15' },
+  { id:'B', name:'Rond Point Grand Mbao',           note:'Arrêt de prise en charge',       time:'6h18' },
+  { id:'C', name:'Diouma Dji',                      note:'Keur Mbaye Fall - Diouma Dji',   time:'6h22' },
+  { id:'D', name:'Arrêt Car',                       note:'Arrêt de prise en charge',       time:'6h24' },
+  { id:'E', name:'Croisement Keur Massar',          note:'Dernier arrêt · Péage avant 6h30', time:'6h28' },
 ];
 
 const MOIS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
@@ -1492,7 +1492,7 @@ function showBillet(bk, rcData){
         <div class="br"><span class="k">Téléphone</span><span class="v">${bk.tel}</span></div>
         <div class="br"><span class="k">Trajet</span><span class="v">TER Keur Mbaye Fall → Colobane</span></div>
         <div class="br"><span class="k">Date</span><span class="v">${bk.ds.charAt(0).toUpperCase()+bk.ds.slice(1)}</span></div>
-        <div class="br"><span class="k">Départ</span><span class="v gold">6h15 — Gare TER</span></div>
+        <div class="br"><span class="k">Départ Gare TER</span><span class="v gold">6h15 · Péage avant 6h30</span></div>
         <div class="br"><span class="k">Prise en charge</span><span class="v gold">${lieu.name} (${lieu.time})</span></div>
         <div class="br"><span class="k">Type</span><span class="v">${bk.typeLabel}</span></div>
         <div class="br"><span class="k">Montant payé</span><span class="v gold">500 F CFA</span></div>
