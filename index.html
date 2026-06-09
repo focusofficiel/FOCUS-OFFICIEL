@@ -527,11 +527,26 @@ textarea.fi{resize:vertical;min-height:100px}
 .spin{width:40px;height:40px;border:3px solid var(--or-l);border-top-color:var(--or);border-radius:50%;animation:sp .7s linear infinite}
 .ldr-t{font-size:14px;font-family:'Inter',sans-serif;color:var(--gris3)}
 
+
+/* QR CODE BILLET */
+.qr-section{
+  text-align:center;padding:20px 20px 16px;
+  border-top:2px dashed var(--bord);margin-top:0;
+  background:var(--gris);
+}
+.qr-label{font-family:'Inter',sans-serif;font-size:11px;color:var(--gris3);
+  text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;}
+#qr-canvas{display:inline-block;}
+#qr-canvas canvas,#qr-canvas img{border-radius:8px;border:3px solid var(--or);}
+.qr-ref{font-family:'Courier New',monospace;font-size:11px;color:var(--gris3);
+  margin-top:10px;letter-spacing:1px;}
+
 @media print{
   .nav,.cta-block,.wa-float{display:none!important}
   body{background:white}
 }
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -1340,157 +1355,120 @@ async function confirmReceipt(){
   }
 
   const btn = document.getElementById('btn-confirm');
-  btn.disabled=true;
-  btn.textContent='Analyse en cours…';
+  btn.disabled = true;
+  btn.textContent = 'Analyse en cours…';
 
-  const vsWrap=document.getElementById('vs-wrap');
-  vsWrap.style.display='block';
+  const vsWrap = document.getElementById('vs-wrap');
+  vsWrap.style.display = 'block';
 
   try {
-    // Convertir le fichier en base64
-    const base64 = await fileToBase64(S.receiptFile);
-    const mediaType = S.receiptFile.type === 'application/pdf' ? 'application/pdf' : 
-                      S.receiptFile.type || 'image/jpeg';
+    // Convertir image en base64
+    const base64    = await fileToBase64(S.receiptFile);
+    const mediaType = S.receiptFile.type.startsWith('image/') ? S.receiptFile.type : 'image/jpeg';
 
-    // Étape 1 — lecture
     setVStep(1,'spin');
     await wait(400);
 
-    // Appel API Anthropic pour analyser le reçu
+    // ── Appel API Anthropic : vérification simplifiée
     const vw = S.bk;
-    const openFmt  = vw.validityOpen.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+' à '+vw.validityOpen.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
-    const closeFmt = vw.validityClose.toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})+' à '+vw.validityClose.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    const openFmt  = vw.validityOpen.toLocaleString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
+    const closeFmt = vw.validityClose.toLocaleString('fr-FR',{day:'numeric',month:'long',year:'numeric',hour:'2-digit',minute:'2-digit'});
 
-    const prompt = `Tu es un système de vérification de reçus de paiement Wave pour FOCUS Transport.
+    const prompt = `Analyse cette image.
 
-Analyse cette image et vérifie si c'est un reçu Wave valide.
+C'est censé être un reçu de paiement Wave (application de paiement mobile).
 
-Un reçu Wave valide doit obligatoirement contenir TOUTES ces mentions :
-- "Transaction receipt" ou "Reçu de transaction" en titre
-- Type de transaction : "Paiement"
-- Montant : exactement "500F" ou "500 F"
-- Statut : "Effectué" ou "Effectuée" (case insensitive)
-- Un ID de transaction qui commence par "T_"
-- Une date et heure
-- Un acheteur (nom ou numéro de téléphone)
-
-Créneau horaire autorisé pour ce reçu : du ${openFmt} au ${closeFmt}.
-
-Réponds UNIQUEMENT avec ce JSON (rien d'autre, pas de markdown) :
+Réponds UNIQUEMENT avec ce JSON strict, sans markdown, sans explication :
 {
-  "is_wave_receipt": true/false,
-  "montant_ok": true/false,
-  "statut_ok": true/false,
-  "has_transaction_id": true/false,
-  "transaction_id": "T_XXX ou null",
-  "date_heure": "date trouvée ou null",
-  "date_in_window": true/false,
-  "acheteur": "nom trouvé ou null",
-  "valid": true/false,
-  "error": "message d\'erreur si invalid, null si valide"
-}`;
+  "has_wave_logo": true ou false,
+  "amount_500": true ou false,
+  "amount_found": "montant trouvé dans l\'image ou null",
+  "date_found": "date trouvée dans l\'image au format ISO 8601 (YYYY-MM-DDTHH:MM) ou null",
+  "date_in_window": true ou false,
+  "is_valid": true ou false
+}
+
+Règles :
+- has_wave_logo = true si tu vois le logo Wave (pingouin bleu) ou le mot "wave" dans l\'image
+- amount_500 = true si tu vois "500F" ou "500 F" ou "500" comme montant de transaction
+- date_found = la date/heure affichée sur le reçu (champ "Date et heure" ou "Date and time")
+- date_in_window = true si date_found est comprise entre ${openFmt} et ${closeFmt}
+- is_valid = true uniquement si has_wave_logo ET amount_500 ET date_in_window sont tous true`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 1000,
-        messages: [{
-          role: 'user',
-          content: [{
-            type: 'image',
-            source: { type: 'base64', media_type: mediaType, data: base64 }
-          },{
-            type: 'text',
-            text: prompt
-          }]
-        }]
+        max_tokens: 300,
+        messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: mediaType, data: base64 } },
+          { type: 'text', text: prompt }
+        ]}]
       })
     });
 
     setVStep(1,'ok');
-    await wait(300);
     setVStep(2,'spin');
+    await wait(300);
 
     if(!response.ok){
-      throw new Error('Erreur API: ' + response.status);
+      const errText = await response.text();
+      throw new Error('Erreur API (' + response.status + ')');
     }
 
-    const data = await response.json();
+    const data    = await response.json();
     const rawText = data.content[0].text.trim();
-    
-    // Parser le JSON retourné
+
     let result;
     try {
-      const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-      result = JSON.parse(jsonMatch ? jsonMatch[0] : rawText);
+      const m = rawText.match(/\{[\s\S]*?\}/);
+      result  = JSON.parse(m ? m[0] : rawText);
     } catch(e) {
-      throw new Error('Impossible de lire la réponse de vérification.');
+      throw new Error('Réponse illisible. Réessayez.');
     }
 
     setVStep(2,'ok');
-    await wait(300);
     setVStep(3,'spin');
-    await wait(500);
+    await wait(400);
 
-    // Vérifier le résultat
-    if(!result.is_wave_receipt){
+    // ── Contrôles
+    if(!result.has_wave_logo){
       setVStep(3,'err');
-      showErr('up-err','❌ Ce document ne ressemble pas à un reçu Wave. Veuillez téléverser la capture d\'écran de votre Transaction receipt Wave.');
+      showErr('up-err','❌ Logo Wave non détecté. Assurez-vous de téléverser une capture d\'écran de votre reçu Wave (avec le pingouin bleu en haut).');
       btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
       return;
     }
-    if(!result.montant_ok){
+    if(!result.amount_500){
       setVStep(3,'err');
-      showErr('up-err','❌ Le montant du reçu ne correspond pas. Le paiement doit être de 500F pour FOCUS Transport.');
-      btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
-      return;
-    }
-    if(!result.statut_ok){
-      setVStep(3,'err');
-      showErr('up-err','❌ Le statut du reçu n\'est pas "Effectué". Votre paiement n\'a peut-être pas abouti. Vérifiez dans votre app Wave.');
+      showErr('up-err','❌ Montant incorrect. Le reçu doit afficher 500F. Montant trouvé : ' + (result.amount_found||'non détecté') + '.');
       btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
       return;
     }
     if(!result.date_in_window){
       setVStep(3,'err');
-      showErr('up-err',`❌ Reçu hors créneau valide. La date/heure du reçu (${result.date_heure || 'non détectée'}) est en dehors du créneau autorisé : ${openFmt} → ${closeFmt}.`);
-      btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
-      return;
-    }
-    if(result.error && !result.valid){
-      setVStep(3,'err');
-      showErr('up-err','❌ ' + result.error);
+      const df = result.date_found ? 'Date trouvée : ' + result.date_found + '.' : 'Date non détectée sur le reçu.';
+      showErr('up-err','❌ Reçu hors créneau valide. ' + df + '\nCréneau autorisé : ' + openFmt + ' → ' + closeFmt + '.');
       btn.disabled=false; btn.textContent='✅ Vérifier et obtenir mon billet';
       return;
     }
 
     setVStep(3,'ok');
-    await wait(300);
     setVStep(4,'spin');
-    await wait(600);
+    await wait(500);
     setVStep(4,'ok');
-    await wait(400);
+    await wait(300);
 
-    // Tout est valide — enregistrer et afficher le billet
-    sendSheet({
-      action:'update_status',
-      reference: S.bk.ref,
-      statut: 'Payé Wave — Reçu vérifié',
-      txid: result.transaction_id || '',
-      acheteur: result.acheteur || ''
-    });
-
-    showBillet(S.bk, { txid: result.transaction_id || 'Vérifié', acheteur: result.acheteur || '' });
+    // ── Tout OK → enregistrer et afficher le billet
+    sendSheet({ action:'update_status', reference:S.bk.ref, statut:'Payé Wave — Reçu vérifié' });
+    showBillet(S.bk);
 
   } catch(err) {
     console.error(err);
-    showErr('up-err','⚠️ Erreur lors de la vérification : '+err.message+'. Réessayez ou contactez le support WhatsApp.');
+    document.getElementById('vs-wrap').style.display='none';
+    showErr('up-err','⚠️ Erreur : ' + err.message + '. Réessayez ou contactez le support WhatsApp.');
     btn.disabled=false;
     btn.textContent='✅ Vérifier et obtenir mon billet';
-    // Réinitialiser les étapes
-    document.getElementById('vs-wrap').style.display='none';
   }
 }
 
@@ -1520,11 +1498,28 @@ function wait(ms){return new Promise(r=>setTimeout(r,ms));}
 // ══════════════════════════════════════════════
 //  AFFICHAGE BILLET
 // ══════════════════════════════════════════════
-function showBillet(bk, rcData){
+function showBillet(bk){
   if(S.timerIv)clearInterval(S.timerIv);
   rBook(6);
   const logo=document.getElementById('nav-logo').src;
   const lieu=LIEUX.find(l=>l.name===bk.lieu)||{name:bk.lieu,time:bk.lieuTime};
+
+  // Générer un token signé pour le QR code
+  const issued = new Date().toISOString();
+  const qrData = JSON.stringify({
+    ref: bk.ref,
+    nom: bk.prenom + ' ' + bk.nom,
+    tel: bk.tel,
+    date: bk.ds,
+    lieu: bk.lieu,
+    montant: 500,
+    issued: issued,
+    valid: true
+  });
+  // Encoder en base64 pour le QR
+  const qrToken = btoa(unescape(encodeURIComponent(qrData)));
+  // URL de vérification (page admin scanner)
+  const verifyUrl = window.location.origin + window.location.pathname.replace('index.html','') + 'verifier.html?t=' + qrToken;
 
   document.getElementById('bs6').innerHTML=`
   <div class="billet-page">
@@ -1553,7 +1548,7 @@ function showBillet(bk, rcData){
         <div class="br"><span class="k">Type</span><span class="v">${bk.typeLabel}</span></div>
         <div class="br"><span class="k">Montant payé</span><span class="v gold">500 F CFA</span></div>
         <div class="br"><span class="k">Référence</span><span class="v gold" style="font-family:'Courier New',monospace;letter-spacing:1px">${bk.ref}</span></div>
-        <div class="br"><span class="k">ID de transaction</span><span class="v" style="font-family:'Courier New',monospace;font-size:12px">${rcData.txid||'—'}</span></div>
+
         <div class="br"><span class="k">Paiement</span><span class="v green">✓ Wave · FOCUS OFFICIEL</span></div>
         <div class="br"><span class="k">Reçu vérifié</span><span class="v green">✓ Validé</span></div>
       </div>
@@ -1567,6 +1562,20 @@ function showBillet(bk, rcData){
     </div>
   </div>`;
   window.scrollTo(0,0);
+  // Générer le QR code après rendu du DOM
+  setTimeout(() => {
+    const qrEl = document.getElementById('qr-canvas');
+    if(qrEl && typeof QRCode !== 'undefined'){
+      new QRCode(qrEl, {
+        text: verifyUrl,
+        width: 160,
+        height: 160,
+        colorDark: '#1A1A1A',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+  }, 100);
 }
 
 // ══════════════════════════════════════════════
