@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FOCUS Transport — Dakar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@500;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* ══════════════════════════════════════════
    VARIABLES & BASE — Fond blanc, Times New Roman
@@ -79,7 +79,7 @@ a{color:inherit;text-decoration:none}
 }
 .hero-bg-glow{
   position:absolute;top:-100px;right:-100px;
-  width:500px;height:500px;
+  width:400px;height:400px;
   background:radial-gradient(circle,rgba(255,192,0,.2) 0%,transparent 70%);
   pointer-events:none;
 }
@@ -185,7 +185,7 @@ a{color:inherit;text-decoration:none}
 .tc-l{font-size:11px;font-family:'Inter',sans-serif;color:var(--gris3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
 .tc-p{font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--noir)}
 .tc.star .tc-p{color:var(--or)}
-.tc-p small{font-size:13px;font-weight:500;color:var(--gris3);font-family:'Inter',sans-serif}
+.tc-p small{font-size:13px;font-weight:400;color:var(--gris3);font-family:'Inter',sans-serif}
 .tc-n{font-size:11px;font-family:'Inter',sans-serif;color:var(--gris3);margin-top:4px}
 
 /* INFO ITEMS */
@@ -675,19 +675,19 @@ textarea.fi{resize:vertical;min-height:100px}
       <div class="tc soon">
         <div class="tc-soon">Bientôt</div>
         <div class="tc-l">Aller-retour</div>
-        <div class="tc-p">1 000 <small>F CFA</small></div>
+        <div class="tc-p">800 <small>F CFA</small></div>
         <div class="tc-n">2 trajets</div>
       </div>
       <div class="tc soon">
         <div class="tc-soon">Bientôt</div>
         <div class="tc-l">Hebdomadaire</div>
-        <div class="tc-p">4 500 <small>F CFA</small></div>
+        <div class="tc-p">3 500 <small>F CFA</small></div>
         <div class="tc-n">Lun – Ven · 5 jours</div>
       </div>
       <div class="tc soon">
         <div class="tc-soon">Bientôt</div>
         <div class="tc-l">Mensuel</div>
-        <div class="tc-p">20 000 <small>F CFA</small></div>
+        <div class="tc-p">13 500 <small>F CFA</small></div>
         <div class="tc-n">~22 trajets</div>
       </div>
     </div>
@@ -845,13 +845,44 @@ textarea.fi{resize:vertical;min-height:100px}
       </p>
     </div>
 
-    <!-- Bouton billet — CACHÉ, apparaît seulement après clic sur Wave -->
+    <!-- Zone upload + billet — CACHÉ, apparaît après clic Wave -->
     <div id="after-pay" style="display:none;margin-top:0">
+
+      <!-- Upload reçu -->
+      <div style="background:var(--gris);border:2px solid var(--bord);border-radius:16px;padding:1.25rem;margin-bottom:1rem">
+        <div style="font-size:15px;font-weight:700;margin-bottom:.35rem">📎 Téléversez votre reçu Wave</div>
+        <div style="font-size:13px;font-family:'Inter',sans-serif;color:var(--gris3);margin-bottom:1rem;line-height:1.6">
+          Prenez une capture d'écran de votre reçu Wave et téléversez-la pour générer votre billet.
+        </div>
+
+        <div id="upzone" style="border:2px dashed var(--bord);border-radius:12px;padding:1.5rem;text-align:center;cursor:pointer;background:var(--w);position:relative;transition:.2s" ondragover="upDragOn(event)" ondragleave="upDragOff(event)" ondrop="upDrop(event)">
+          <input type="file" id="up-file" accept="image/*" onchange="upPick(event)" style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%">
+          <div style="font-size:36px;margin-bottom:.5rem">🧾</div>
+          <div style="font-size:14px;font-weight:600;color:var(--noir);margin-bottom:4px">Appuyez pour choisir votre reçu</div>
+          <div style="font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">Photo ou capture d'écran Wave · JPG, PNG</div>
+        </div>
+
+        <!-- Preview fichier -->
+        <div id="up-prev" style="display:none;margin-top:.75rem">
+          <div style="background:var(--vert-l);border:1px solid var(--vert-b);border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:24px">🖼️</span>
+            <div style="flex:1">
+              <div style="font-size:13px;font-weight:600;font-family:'Inter',sans-serif" id="up-fname">—</div>
+              <div style="font-size:11px;color:var(--gris3);font-family:'Inter',sans-serif" id="up-fsize">—</div>
+            </div>
+            <button onclick="upRemove()" style="background:none;border:none;color:var(--gris3);font-size:18px;cursor:pointer;padding:4px">✕</button>
+          </div>
+        </div>
+
+        <div id="up-err" style="display:none;margin-top:.75rem;background:var(--rouge-l);border:1.5px solid rgba(192,57,43,.2);color:var(--rouge);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif"></div>
+      </div>
+
+      <!-- Bouton générer -->
       <button class="btn-or" onclick="genererBillet()" style="font-family:'Inter',sans-serif;font-size:16px">
         🎫 Générer mon billet de transport
       </button>
       <p style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">
-        Votre paiement Wave a bien été effectué ? Cliquez ici.
+        Téléversez votre reçu puis cliquez pour obtenir votre billet
       </p>
     </div>
 
@@ -873,8 +904,8 @@ textarea.fi{resize:vertical;min-height:100px}
         <div class="coming-txt">Les abonnements hebdomadaires et mensuels seront disponibles très prochainement. En attendant, réservez quotidiennement avec l'aller simple à 400 F CFA.</div>
       </div>
     </div>
-    <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Hebdomadaire</div><div class="sub-d">Lun – Ven · 5 trajets</div></div><div class="sub-p">4 500 F</div></div><span class="sub-eco">✓ 900 F/jour</span></div>
-    <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Mensuel</div><div class="sub-d">Lun – Ven · ~22 trajets</div></div><div class="sub-p">20 000 F</div></div><span class="sub-eco">✓ ~909 F/jour</span></div>
+    <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Hebdomadaire</div><div class="sub-d">Lun – Ven · 5 trajets</div></div><div class="sub-p">4 400 F</div></div><span class="sub-eco">✓ 900 F/jour</span></div>
+    <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Mensuel</div><div class="sub-d">Lun – Ven · ~22 trajets</div></div><div class="sub-p">13 500 F</div></div><span class="sub-eco">✓ ~909 F/jour</span></div>
     <div style="margin-top:1.5rem">
       <button class="btn-or" onclick="go('book')" style="font-family:'Inter',sans-serif">🎟 Réserver un aller simple — 400 F CFA</button>
     </div>
@@ -987,7 +1018,7 @@ textarea.fi{resize:vertical;min-height:100px}
 //  CONFIG
 // ══════════════════════════════════════════════
 const WAVE_URL  = 'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/';
-const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsI92vJcvXFAPC3MHwvnsPIhZO8I6l4svxBC2CMs2-qwywFtnz9My72nGKHlq3lX07tQ/exec';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxX2vqxRX_v_WsFpsZpzNOG8Jyf_U5uLI_WZHF5AOUaRN3fUdEKKnGTyXNx43di5xpx/exec';
 
 // Première date de réservation disponible : Lundi 7 juillet 2025
 // (Les réservations ouvrent 2 jours avant, donc le 5 juillet pour le 7 juillet)
@@ -1006,7 +1037,7 @@ const JOURS = ['Di','Lu','Ma','Me','Je','Ve','Sa'];
 const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
 
 let S = {
-  page:'home', step:1, date:null,
+  page:'home', step:1, date:null, filePicked:false, receiptFile:null,
   calM:new Date(2026,5,1), // Juillet 2025
   lieu:null, bk:{}, timerIv:null
 };
@@ -1213,7 +1244,34 @@ function markPaid(){
   }, 800);
 }
 
+// Upload helpers
+function upDragOn(e){e.preventDefault();document.getElementById('upzone').style.borderColor='var(--or)';document.getElementById('upzone').style.background='var(--or-l)';}
+function upDragOff(e){document.getElementById('upzone').style.borderColor='var(--bord)';document.getElementById('upzone').style.background='var(--w)';}
+function upDrop(e){e.preventDefault();upDragOff(e);const f=e.dataTransfer.files[0];if(f)upProcess(f);}
+function upPick(e){const f=e.target.files[0];if(f)upProcess(f);}
+function upProcess(file){
+  if(!file.type.startsWith('image/')){
+    const er=document.getElementById('up-err');er.style.display='block';er.textContent='⚠️ Format non supporté. Utilisez une image (JPG, PNG).';return;
+  }
+  document.getElementById('up-err').style.display='none';
+  document.getElementById('up-fname').textContent=file.name;
+  document.getElementById('up-fsize').textContent=(file.size/1024).toFixed(0)+' Ko';
+  document.getElementById('up-prev').style.display='block';
+  S.receiptFile=file; S.filePicked=true;
+}
+function upRemove(){
+  document.getElementById('up-prev').style.display='none';
+  document.getElementById('up-file').value='';
+  S.receiptFile=null; S.filePicked=false;
+}
+
 function genererBillet(){
+  if(!S.filePicked){
+    const er=document.getElementById('up-err');
+    er.style.display='block';
+    er.textContent='⚠️ Veuillez d\'abord téléverser votre reçu Wave.';
+    return;
+  }
   showBillet(S.bk);
 }
 
@@ -1257,7 +1315,7 @@ async
 
 // ══════════════════════════════════════════════
 //  ANALYSE LOCALE — canvas + reconnaissance couleur/texte
-//  Détecte le bleu Wave (#1ABEF5) et le texte "400"
+//  Détecte le bleu Wave (#1ABEF5) et le texte "500"
 //  Tout se fait dans le navigateur, < 1 seconde
 // ══════════════════════════════════════════════
 
