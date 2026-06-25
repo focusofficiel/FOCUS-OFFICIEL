@@ -2,88 +2,104 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>FOCUS — Vérification Billet</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1A1A1A}
+body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1A1A1A;overflow-x:hidden}
 
 /* ══ LOGIN ══ */
-.login-screen{
-  position:fixed;inset:0;background:#1A1A1A;
-  display:flex;align-items:center;justify-content:center;
-  z-index:999;padding:1.5rem;
-}
-.login-card{
-  background:#fff;border-radius:20px;padding:2.5rem 2rem;
-  width:100%;max-width:360px;text-align:center;
-}
-.login-logo{
-  width:64px;height:64px;background:#FFC000;border-radius:16px;
-  display:flex;align-items:center;justify-content:center;
-  font-size:32px;margin:0 auto 1.25rem;
-}
+.login-screen{position:fixed;inset:0;background:#1A1A1A;display:flex;align-items:center;justify-content:center;z-index:999;padding:1.5rem}
+.login-card{background:#fff;border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:360px;text-align:center}
+.login-logo{width:72px;height:72px;background:#FFC000;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 1.25rem}
 .login-title{font-size:22px;font-weight:800;margin-bottom:.25rem}
 .login-sub{font-size:13px;color:#999;margin-bottom:2rem;line-height:1.5}
-
-/* PIN DIGITS */
-.pin-display{
-  display:flex;justify-content:center;gap:12px;margin-bottom:1.5rem;
-}
-.pin-dot{
-  width:18px;height:18px;border-radius:50%;
-  background:#E0E0E0;transition:all .2s;
-}
-.pin-dot.filled{background:#FFC000;transform:scale(1.15)}
+.pin-display{display:flex;justify-content:center;gap:12px;margin-bottom:1.5rem}
+.pin-dot{width:18px;height:18px;border-radius:50%;background:#E0E0E0;transition:all .2s}
+.pin-dot.filled{background:#1A1A1A;transform:scale(1.15)}
 .pin-dot.error{background:#EF4444;animation:shake .3s ease}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
-
-/* CLAVIER */
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
 .pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
-.pin-key{
-  padding:16px;background:#F5F5F5;border:none;border-radius:12px;
-  font-size:20px;font-weight:700;cursor:pointer;transition:all .15s;
-  font-family:inherit;color:#1A1A1A;
-}
+.pin-key{padding:16px;background:#F5F5F5;border:none;border-radius:12px;font-size:20px;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;color:#1A1A1A}
 .pin-key:hover{background:#FFF8E1;color:#FFC000}
 .pin-key:active{transform:scale(.94)}
 .pin-key.del{background:#FDECEA;color:#EF4444;font-size:16px}
 .pin-key.del:hover{background:#EF4444;color:#fff}
 .pin-key.empty{background:transparent;cursor:default}
-
-.login-err{
-  background:#FDECEA;color:#C0392B;border-radius:10px;
-  padding:10px 14px;font-size:13px;margin-bottom:1rem;
-  display:none;
-}
-.login-attempts{font-size:12px;color:#999;margin-top:.5rem}
-
-/* Blocage temporaire */
-.blocked-msg{
-  background:#FFF8E1;border:2px solid #FFC000;border-radius:12px;
-  padding:14px;font-size:13px;color:#5D4037;margin-bottom:1rem;
-  display:none;text-align:center;
-}
+.login-err{background:#FDECEA;color:#C0392B;border-radius:10px;padding:10px 14px;font-size:13px;margin-bottom:1rem;display:none}
+.blocked-msg{background:#FFF8E1;border:2px solid #FFC000;border-radius:12px;padding:14px;font-size:13px;color:#5D4037;margin-bottom:1rem;display:none;text-align:center}
 
 /* ══ APP ══ */
 .app{display:none}
-.header{
-  background:#1A1A1A;padding:14px 20px;
-  display:flex;align-items:center;justify-content:space-between;
-}
+.header{background:#1A1A1A;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
 .header-left{display:flex;align-items:center;gap:10px}
 .header-logo{width:36px;height:36px;background:#FFC000;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px}
 .header-title{font-size:15px;font-weight:700;color:#FFC000}
 .header-sub{font-size:11px;color:rgba(255,255,255,.4);margin-top:1px}
-.header-right{display:flex;align-items:center;gap:8px}
 .badge-agent{background:#FFC000;color:#1A1A1A;font-size:10px;font-weight:800;padding:4px 10px;border-radius:100px;letter-spacing:1px}
-.logout-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.5);font-size:12px;font-family:inherit;padding:6px 10px;border-radius:8px;cursor:pointer;transition:.15s}
+.logout-btn{background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.5);font-size:12px;font-family:inherit;padding:6px 10px;border-radius:8px;cursor:pointer}
 .logout-btn:hover{background:rgba(239,68,68,.2);color:#EF4444}
+.session-bar{background:#FFF8E1;border-bottom:1px solid #FFD54F;padding:7px 20px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#5D4037}
+.session-dot{width:8px;height:8px;background:#22C55E;border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ══ TABS ══ */
+.tabs{display:flex;background:#fff;border-bottom:2px solid #F0F0F0;padding:0 20px}
+.tab{padding:14px 20px;font-size:14px;font-weight:600;color:#999;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;transition:.2s;display:flex;align-items:center;gap:6px}
+.tab.active{color:#1A1A1A;border-bottom-color:#FFC000}
+
+/* ══ CONTAINER ══ */
 .container{max-width:500px;margin:0 auto;padding:1.25rem}
 
-/* RESULT */
+/* ══ SCANNER ══ */
+.scanner-wrap{background:#1A1A1A;border-radius:20px;overflow:hidden;margin-bottom:1rem;position:relative}
+.scanner-header{padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+.scanner-title{font-size:14px;font-weight:700;color:#fff}
+.scanner-status{font-size:12px;color:rgba(255,255,255,.5)}
+.scanner-viewport{position:relative;background:#000;aspect-ratio:1;max-height:320px;overflow:hidden}
+#scanner-video{width:100%;height:100%;object-fit:cover;display:block}
+.scanner-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.scanner-frame{
+  width:220px;height:220px;position:relative;
+}
+.scanner-frame::before,.scanner-frame::after,
+.scanner-corner-br,.scanner-corner-bl{
+  content:'';position:absolute;width:40px;height:40px;border-color:#FFC000;border-style:solid;
+}
+.scanner-frame::before{top:0;left:0;border-width:4px 0 0 4px;border-radius:4px 0 0 0}
+.scanner-frame::after{top:0;right:0;border-width:4px 4px 0 0;border-radius:0 4px 0 0}
+.scanner-corner-br{bottom:0;right:0;border-width:0 4px 4px 0;border-radius:0 0 4px 0}
+.scanner-corner-bl{bottom:0;left:0;border-width:0 0 4px 4px;border-radius:0 0 0 4px}
+.scanner-line{
+  position:absolute;left:10px;right:10px;height:2px;
+  background:linear-gradient(to right,transparent,#FFC000,transparent);
+  animation:scan 2s ease-in-out infinite;top:50%;
+}
+@keyframes scan{0%,100%{transform:translateY(-100px);opacity:.4}50%{transform:translateY(100px);opacity:1}}
+.scanner-hint{padding:12px 16px;text-align:center;font-size:13px;color:rgba(255,255,255,.5)}
+
+/* Boutons scanner */
+.scanner-actions{display:flex;gap:8px;padding:12px 16px;background:rgba(255,255,255,.04)}
+.btn-cam{flex:1;padding:12px;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s}
+.btn-cam.start{background:#FFC000;color:#1A1A1A}
+.btn-cam.start:hover{background:#FFD333}
+.btn-cam.stop{background:rgba(239,68,68,.15);color:#EF4444;border:1.5px solid rgba(239,68,68,.3)}
+.btn-cam.stop:hover{background:#EF4444;color:#fff}
+
+/* Flash résultat scan */
+.scan-result-flash{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:8px;z-index:10;display:none;
+}
+.scan-result-flash.valid{background:rgba(34,197,94,.92)}
+.scan-result-flash.invalid{background:rgba(239,68,68,.92)}
+.scan-result-flash.expired{background:rgba(245,158,11,.92)}
+.flash-ico{font-size:60px}
+.flash-txt{font-size:20px;font-weight:800;color:#fff}
+.flash-sub{font-size:13px;color:rgba(255,255,255,.8);text-align:center;padding:0 16px}
+
+/* ══ RÉSULTATS ══ */
 .result-valid{background:#fff;border:3px solid #22C55E;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(34,197,94,.12);margin-bottom:1rem}
 .result-valid .rh{background:#22C55E;padding:20px;text-align:center;color:#fff}
 .result-invalid{background:#fff;border:3px solid #EF4444;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(239,68,68,.12);margin-bottom:1rem}
@@ -93,7 +109,6 @@ body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1
 .rh-ico{font-size:48px;margin-bottom:8px}
 .rh-title{font-size:22px;font-weight:800;margin-bottom:4px}
 .rh-sub{font-size:14px;opacity:.85}
-
 .ticket-rows{padding:4px 0}
 .tr{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 18px;border-bottom:1px solid #F0F0F0;font-size:14px;gap:12px}
 .tr:last-child{border:none}
@@ -104,7 +119,7 @@ body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1
 .tr .v.red{color:#EF4444}
 .tr .v.orange{color:#F59E0B}
 
-/* SCAN BOX */
+/* ══ MANUEL ══ */
 .scan-box{background:#fff;border:2px solid #E0E0E0;border-radius:16px;padding:1.25rem;margin-bottom:1rem}
 .scan-title{font-size:16px;font-weight:700;margin-bottom:.4rem}
 .scan-sub{font-size:13px;color:#999;margin-bottom:1rem;line-height:1.5}
@@ -112,47 +127,41 @@ body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1
 .fi:focus{border-color:#FFC000;background:#FFF8E1}
 .btn-or{display:flex;align-items:center;justify-content:center;width:100%;padding:14px;background:#FFC000;color:#1A1A1A;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:10px;font-family:inherit;transition:.15s}
 .btn-or:hover{background:#FFD333}
-.btn-out{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;background:transparent;color:#1A1A1A;border:2px solid #E0E0E0;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:inherit;transition:.15s}
-.btn-out:hover{border-color:#FFC000}
-
+.btn-out{display:flex;align-items:center;justify-content:center;width:100%;padding:13px;background:transparent;color:#1A1A1A;border:2px solid #E0E0E0;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:8px;font-family:inherit}
 .aerr{background:#FDECEA;border:1.5px solid rgba(192,57,43,.2);color:#C0392B;border-radius:11px;padding:12px 14px;font-size:13px;margin-bottom:1rem;display:none;line-height:1.5}
-
 .empty-state{text-align:center;padding:2.5rem 1rem;color:#999}
 .empty-ico{font-size:56px;margin-bottom:1rem;opacity:.35}
 .empty-title{font-size:17px;font-weight:700;color:#1A1A1A;margin-bottom:.5rem}
 .empty-sub{font-size:13px;line-height:1.6}
+.ts{font-size:11px;color:#bbb;text-align:center;padding:8px;font-family:monospace}
 
-.ts{font-size:11px;color:#bbb;text-align:center;padding:8px;font-family:'Courier New',monospace}
-
-/* Session info */
-.session-bar{
-  background:#FFF8E1;border-bottom:1px solid #FFD54F;
-  padding:8px 20px;display:flex;align-items:center;justify-content:space-between;
-  font-size:12px;color:#5D4037;
-}
-.session-dot{width:8px;height:8px;background:#22C55E;border-radius:50%;display:inline-block;margin-right:6px;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* ══ HISTORIQUE ══ */
+.hist-item{background:#fff;border-radius:12px;border:1.5px solid #E0E0E0;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.hist-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.hist-ico.valid{background:#E8F5E9}
+.hist-ico.invalid{background:#FDECEA}
+.hist-ico.expired{background:#FFF8E1}
+.hist-ref{font-size:13px;font-weight:600}
+.hist-info{font-size:12px;color:#999;margin-top:2px}
+.hist-time{font-size:11px;color:#bbb;font-family:monospace;margin-left:auto;flex-shrink:0}
 </style>
 </head>
 <body>
 
-<!-- ══ ÉCRAN DE CONNEXION ══ -->
+<!-- ══ LOGIN ══ -->
 <div class="login-screen" id="login-screen">
   <div class="login-card">
     <div class="login-logo">🔍</div>
-    <div class="login-title">FOCUS Vérification</div>
-    <div class="login-sub">Accès réservé à l'équipe FOCUS.<br>Saisissez votre code PIN agent.</div>
-
+    <div class="login-title">FOCUS — Agents</div>
+    <div class="login-sub">Vérification des billets de transport<br>Accès réservé à l'équipe FOCUS</div>
     <div class="blocked-msg" id="blocked-msg"></div>
     <div class="login-err" id="login-err"></div>
-
     <div class="pin-display" id="pin-display">
       <div class="pin-dot" id="d0"></div>
       <div class="pin-dot" id="d1"></div>
       <div class="pin-dot" id="d2"></div>
       <div class="pin-dot" id="d3"></div>
     </div>
-
     <div class="pin-pad">
       <button class="pin-key" onclick="pressKey('1')">1</button>
       <button class="pin-key" onclick="pressKey('2')">2</button>
@@ -167,334 +176,495 @@ body{font-family:'Inter',sans-serif;background:#F5F5F5;min-height:100vh;color:#1
       <button class="pin-key" onclick="pressKey('0')">0</button>
       <button class="pin-key del" onclick="deleteKey()">⌫</button>
     </div>
-
-    <div class="login-attempts" id="attempts-txt"></div>
   </div>
 </div>
 
-<!-- ══ APPLICATION ══ -->
+<!-- ══ APP ══ -->
 <div class="app" id="app">
   <div class="header">
     <div class="header-left">
       <div class="header-logo">🔍</div>
       <div>
         <div class="header-title">FOCUS — Vérification</div>
-        <div class="header-sub">Contrôle des billets</div>
+        <div class="header-sub">Contrôle des billets · <span id="trajet-status">—</span></div>
       </div>
     </div>
-    <div class="header-right">
+    <div style="display:flex;align-items:center;gap:8px">
       <div class="badge-agent">AGENT</div>
       <button class="logout-btn" onclick="logout()">Quitter</button>
     </div>
   </div>
-
   <div class="session-bar">
     <div><span class="session-dot"></span>Session active</div>
     <div id="session-time"></div>
   </div>
 
-  <div class="container">
-    <div id="result-area">
-      <div class="empty-state">
-        <div class="empty-ico">🎫</div>
-        <div class="empty-title">Prêt à vérifier</div>
-        <div class="empty-sub">Scannez le QR code d'un billet FOCUS<br>ou collez les données ci-dessous</div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" id="tab-scan" onclick="switchTab('scan')">📷 Scanner QR</div>
+    <div class="tab" id="tab-manual" onclick="switchTab('manual')">⌨️ Saisie manuelle</div>
+    <div class="tab" id="tab-hist" onclick="switchTab('hist')">📋 Historique</div>
+  </div>
+
+  <!-- ══ TAB SCANNER ══ -->
+  <div id="tab-scan-content" class="container">
+    <div class="scanner-wrap">
+      <div class="scanner-header">
+        <div class="scanner-title">📷 Scanner le QR code du billet</div>
+        <div class="scanner-status" id="cam-status">Caméra inactive</div>
+      </div>
+      <div class="scanner-viewport">
+        <video id="scanner-video" playsinline autoplay muted></video>
+        <div class="scanner-overlay">
+          <div class="scanner-frame">
+            <div class="scanner-corner-br"></div>
+            <div class="scanner-corner-bl"></div>
+            <div class="scanner-line"></div>
+          </div>
+        </div>
+        <!-- Flash résultat -->
+        <div class="scan-result-flash" id="scan-flash">
+          <div class="flash-ico" id="flash-ico"></div>
+          <div class="flash-txt" id="flash-txt"></div>
+          <div class="flash-sub" id="flash-sub"></div>
+        </div>
+      </div>
+      <div class="scanner-hint">Pointez la caméra vers le QR code du billet</div>
+      <div class="scanner-actions">
+        <button class="btn-cam start" id="btn-start-cam" onclick="startCamera()">📷 Activer la caméra</button>
+        <button class="btn-cam stop" id="btn-stop-cam" onclick="stopCamera()" style="display:none">⏹ Arrêter</button>
       </div>
     </div>
 
+    <!-- Résultat scan -->
+    <div id="scan-result"></div>
+    <div id="scan-ts" class="ts"></div>
+  </div>
+
+  <!-- ══ TAB MANUEL ══ -->
+  <div id="tab-manual-content" class="container" style="display:none">
     <div class="scan-box">
-      <div class="scan-title">📋 Vérification manuelle</div>
+      <div class="scan-title">⌨️ Vérification manuelle</div>
       <div class="scan-sub">Collez les données du QR code ou saisissez la référence du billet</div>
       <div id="err-box" class="aerr"></div>
-      <input class="fi" id="ref-input" placeholder="FOCUS-BK-20260610-XXXX ou données QR" oninput="clearErr()">
+      <input class="fi" id="ref-input" placeholder="FOCUS-BK-20260610-XXXX ou données QR">
       <button class="btn-or" onclick="verifyManual()">🔍 Vérifier ce billet</button>
-      <button class="btn-out" onclick="clearResult()">🔄 Nouveau contrôle</button>
+      <button class="btn-out" onclick="clearManual()">🔄 Nouveau contrôle</button>
     </div>
+    <div id="manual-result"></div>
+    <div id="manual-ts" class="ts"></div>
+  </div>
 
-    <div class="ts" id="ts"></div>
+  <!-- ══ TAB HISTORIQUE ══ -->
+  <div id="tab-hist-content" class="container" style="display:none">
+    <div id="hist-list">
+      <div class="empty-state">
+        <div class="empty-ico">📋</div>
+        <div class="empty-title">Aucun contrôle effectué</div>
+        <div class="empty-sub">Les billets vérifiés dans cette session apparaîtront ici</div>
+      </div>
+    </div>
   </div>
 </div>
 
 <script>
 // ══════════════════════════════════════════════
-//  PIN — Codes agents FOCUS
-//  À modifier directement ici pour changer les codes
+//  FOCUS VÉRIFICATEUR — Agents
+//  PIN : 1764
+//  Scanner QR caméra + saisie manuelle + historique
+//  Lié à l'admin via localStorage('focus_site_cfg')
 // ══════════════════════════════════════════════
-const AGENT_PINS = [
-  '7788',   // Agent principal
-  '1234',   // Agent 2 — À CHANGER en production
-  '9966',   // Agent 3
-];
 
-// Durée session : 8 heures
-const SESSION_DURATION_MS = 8 * 60 * 60 * 1000;
-// Blocage après 5 tentatives : 10 minutes
-const MAX_ATTEMPTS = 5;
-const BLOCK_MS     = 10 * 60 * 1000;
+const AGENT_PIN      = '1764';
+const SESSION_MS     = 8 * 3600 * 1000;
+const MAX_ATTEMPTS   = 5;
+const BLOCK_MS       = 10 * 60 * 1000;
 
 let pinEntry    = '';
-let attempts    = 0;
-let blockedUntil= null;
+let attempts    = parseInt(localStorage.getItem('focus_agent_attempts')||'0');
+let blockedUntil= parseInt(localStorage.getItem('focus_agent_block')||'0');
 let sessionStart= null;
-let sessionTimer= null;
+let scanHistory = [];
+let camStream   = null;
+let scanActive  = false;
+let scanCooldown= false;
 
-// ── Vérifier session existante
-(function checkSession(){
-  const saved = sessionStorage.getItem('focus_agent_session');
-  if(saved){
-    const s = JSON.parse(saved);
-    if(Date.now() - s.start < SESSION_DURATION_MS){
-      sessionStart = s.start;
-      showApp();
-      return;
-    }
-  }
-  // Vérifier blocage
-  const block = localStorage.getItem('focus_block');
-  if(block){
-    const until = parseInt(block);
-    if(Date.now() < until){
-      blockedUntil = until;
-      showBlock();
-    } else {
-      localStorage.removeItem('focus_block');
-      localStorage.removeItem('focus_attempts');
-    }
-  }
-  attempts = parseInt(localStorage.getItem('focus_attempts')||'0');
-  updateAttemptsLabel();
+// ── VÉRIFIER SESSION
+(function(){
+  const s = sessionStorage.getItem('focus_agent_sess');
+  if(s && Date.now()-parseInt(s) < SESSION_MS){ sessionStart=parseInt(s); showApp(); return; }
+  if(Date.now() < blockedUntil) showBlock();
+  else { localStorage.removeItem('focus_agent_block'); localStorage.removeItem('focus_agent_attempts'); attempts=0; }
 })();
 
-// ── Saisie PIN
+// ── PIN
 function pressKey(k){
-  if(blockedUntil && Date.now() < blockedUntil){ showBlock(); return; }
+  if(Date.now() < blockedUntil){ showBlock(); return; }
   if(pinEntry.length >= 4) return;
   pinEntry += k;
   updateDots();
   if(pinEntry.length === 4) setTimeout(checkPin, 200);
 }
-
-function deleteKey(){
-  pinEntry = pinEntry.slice(0,-1);
-  updateDots();
-  hideErr();
-}
-
+function deleteKey(){ pinEntry=pinEntry.slice(0,-1); updateDots(); hideLoginErr(); }
 function updateDots(){
   for(let i=0;i<4;i++){
-    const d = document.getElementById('d'+i);
-    d.classList.toggle('filled', i < pinEntry.length);
-    d.classList.remove('error');
+    document.getElementById('d'+i).classList.toggle('filled', i<pinEntry.length);
+    document.getElementById('d'+i).classList.remove('error');
   }
 }
-
 function checkPin(){
-  if(AGENT_PINS.includes(pinEntry)){
-    // Succès
-    attempts = 0;
-    localStorage.removeItem('focus_attempts');
-    localStorage.removeItem('focus_block');
+  if(pinEntry === AGENT_PIN){
+    attempts=0;
+    localStorage.removeItem('focus_agent_attempts');
+    localStorage.removeItem('focus_agent_block');
     sessionStart = Date.now();
-    sessionStorage.setItem('focus_agent_session', JSON.stringify({start:sessionStart}));
-    // Flash vert
+    sessionStorage.setItem('focus_agent_sess', sessionStart);
     for(let i=0;i<4;i++) document.getElementById('d'+i).style.background='#22C55E';
     setTimeout(showApp, 400);
   } else {
-    // Échec
     attempts++;
-    localStorage.setItem('focus_attempts', attempts);
-    // Animer erreur
+    localStorage.setItem('focus_agent_attempts', attempts);
     for(let i=0;i<4;i++) document.getElementById('d'+i).classList.add('error');
-    setTimeout(()=>{ pinEntry=''; updateDots(); },500);
-
+    setTimeout(()=>{ pinEntry=''; updateDots(); }, 500);
     if(attempts >= MAX_ATTEMPTS){
-      blockedUntil = Date.now() + BLOCK_MS;
-      localStorage.setItem('focus_block', blockedUntil);
+      blockedUntil = Date.now()+BLOCK_MS;
+      localStorage.setItem('focus_agent_block', blockedUntil);
       showBlock();
     } else {
-      const left = MAX_ATTEMPTS - attempts;
-      showLoginErr(`Code incorrect. ${left} tentative${left>1?'s':''} restante${left>1?'s':''}.`);
-      updateAttemptsLabel();
+      showLoginErr(`Code incorrect. ${MAX_ATTEMPTS-attempts} tentative(s) restante(s).`);
     }
   }
 }
-
 function showBlock(){
-  const msg = document.getElementById('blocked-msg');
-  const mins = Math.ceil((blockedUntil - Date.now()) / 60000);
-  msg.style.display='block';
-  msg.textContent=`⛔ Trop de tentatives. Accès bloqué pour ${mins} minute${mins>1?'s':''}.`;
-  // Countdown
-  const iv = setInterval(()=>{
-    if(Date.now() >= blockedUntil){
-      clearInterval(iv);
-      blockedUntil=null;
-      localStorage.removeItem('focus_block');
-      attempts=0;
-      localStorage.removeItem('focus_attempts');
-      msg.style.display='none';
-      updateAttemptsLabel();
-    } else {
-      const m = Math.ceil((blockedUntil-Date.now())/60000);
-      msg.textContent=`⛔ Trop de tentatives. Accès bloqué pour ${m} minute${m>1?'s':''}.`;
-    }
-  },10000);
-}
-
-function updateAttemptsLabel(){
-  const el = document.getElementById('attempts-txt');
-  if(attempts>0) el.textContent = `${attempts}/${MAX_ATTEMPTS} tentatives`;
-  else el.textContent='';
+  const mins = Math.ceil((blockedUntil-Date.now())/60000);
+  const m = document.getElementById('blocked-msg');
+  m.style.display='block';
+  m.textContent=`⛔ Accès bloqué ${mins} min après trop de tentatives.`;
 }
 function showLoginErr(msg){ const e=document.getElementById('login-err'); e.textContent=msg; e.style.display='block'; }
-function hideErr(){ document.getElementById('login-err').style.display='none'; }
+function hideLoginErr(){ document.getElementById('login-err').style.display='none'; }
 
 function showApp(){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   startSessionTimer();
-  // Auto-vérifier si QR scanné en URL
-  const params = new URLSearchParams(window.location.search);
-  const token  = params.get('t');
-  if(token){ const d=decodeToken(token); if(d) displayResult(d); }
+  loadTrajetStatus();
+  // Auto-vérifier si QR en URL
+  const t = new URLSearchParams(window.location.search).get('t');
+  if(t){ const d=decodeToken(t); if(d){ displayResult(d,'scan-result','scan-ts'); addHistory(d); } }
 }
+function logout(){ stopCamera(); sessionStorage.removeItem('focus_agent_sess'); location.reload(); }
 
-function logout(){
-  sessionStorage.removeItem('focus_agent_session');
-  location.reload();
-}
-
-// ── Timer session
+// ── SESSION TIMER
 function startSessionTimer(){
-  sessionTimer = setInterval(()=>{
-    const elapsed = Date.now() - sessionStart;
-    const remaining = SESSION_DURATION_MS - elapsed;
-    if(remaining <= 0){ logout(); return; }
-    const h = Math.floor(remaining/3600000);
-    const m = Math.floor((remaining%3600000)/60000);
-    document.getElementById('session-time').textContent =
-      `Session expire dans ${h>0?h+'h ':''} ${m}min`;
-  }, 30000);
-  // Afficher immédiatement
-  const h = Math.floor(SESSION_DURATION_MS/3600000);
-  document.getElementById('session-time').textContent = `Session : ${h}h`;
+  setInterval(()=>{
+    const rem = SESSION_MS-(Date.now()-sessionStart);
+    if(rem<=0){ logout(); return; }
+    const h=Math.floor(rem/3600000), m=Math.floor((rem%3600000)/60000);
+    document.getElementById('session-time').textContent=`Expire dans ${h>0?h+'h ':''}${m}min`;
+  }, 60000);
+  const h=Math.floor(SESSION_MS/3600000);
+  document.getElementById('session-time').textContent=`Session : ${h}h`;
+}
+
+// ── LIEN ADMIN — lire la config du localStorage
+function loadTrajetStatus(){
+  try{
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||'{}');
+    const open = cfg.platformeOuverte !== false;
+    const el = document.getElementById('trajet-status');
+    if(el) el.textContent = open ? '✅ Plateforme ouverte' : '🔴 Plateforme fermée';
+    el.style.color = open ? '#22C55E' : '#EF4444';
+  }catch(e){}
 }
 
 // ══════════════════════════════════════════════
-//  VÉRIFICATION BILLETS
+//  TABS
 // ══════════════════════════════════════════════
-function isExpired(dateStr){
-  try {
-    const months = {
-      'janvier':0,'février':1,'mars':2,'avril':3,'mai':4,'juin':5,
-      'juillet':6,'août':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11
-    };
-    const parts = dateStr.toLowerCase().replace(/,/g,'').split(/\s+/);
-    let day, month, year;
-    parts.forEach(p=>{
-      const n = parseInt(p);
-      if(!isNaN(n) && n>12 && n<32) day=n;
-      if(months[p] !== undefined) month=months[p];
-      if(!isNaN(n) && n>2000) year=n;
-    });
-    if(day && month!==undefined && year){
-      return new Date() > new Date(year, month, day, 23, 59, 59);
-    }
-  } catch(e){}
-  return false;
-}
-
-function decodeToken(raw){
-  let token = raw.trim();
-  if(token.includes('?t=')) token = token.split('?t=')[1].split('&')[0];
-  try {
-    return JSON.parse(decodeURIComponent(escape(atob(token))));
-  } catch(e){ return null; }
-}
-
-function verifyManual(){
-  const input = document.getElementById('ref-input').value.trim();
-  if(!input){ showErr('Saisissez une référence ou collez les données QR.'); return; }
-  const data = decodeToken(input);
-  if(data && data.ref) displayResult(data);
-  else if(input.startsWith('FOCUS-BK-')) displayRefOnly(input);
-  else showErr('Données non reconnues. Collez les données du QR code ou une référence FOCUS-BK-...');
-}
-
-function displayResult(data){
-  const expired = isExpired(data.date||'');
-  const now = new Date().toLocaleString('fr-FR',{
-    weekday:'short',day:'numeric',month:'long',
-    hour:'2-digit',minute:'2-digit',second:'2-digit'
+function switchTab(tab){
+  ['scan','manual','hist'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('tab-'+t+'-content').style.display = t===tab?'block':'none';
   });
+  if(tab !== 'scan') stopCamera();
+}
 
-  let html = '';
+// ══════════════════════════════════════════════
+//  SCANNER QR — CAMÉRA
+// ══════════════════════════════════════════════
+async function startCamera(){
+  const btn   = document.getElementById('btn-start-cam');
+  const btnS  = document.getElementById('btn-stop-cam');
+  const status= document.getElementById('cam-status');
+  const video = document.getElementById('scanner-video');
 
-  if(!data.valid){
-    html = `<div class="result-invalid">
-      <div class="rh"><div class="rh-ico">❌</div><div class="rh-title">Billet INVALIDE</div><div class="rh-sub">Ce billet n'est pas reconnu ou a été falsifié</div></div>
-      <div class="ticket-rows">
-        <div class="tr"><span class="k">Référence</span><span class="v red">${data.ref||'—'}</span></div>
-        <div class="tr"><span class="k">Statut</span><span class="v red">✕ Non valide — Refuser l'accès</span></div>
-      </div>
-    </div>`;
-  } else if(expired){
-    html = `<div class="result-expired">
-      <div class="rh"><div class="rh-ico">⏰</div><div class="rh-title">Billet EXPIRÉ</div><div class="rh-sub">La date de ce trajet est passée</div></div>
-      <div class="ticket-rows">
-        <div class="tr"><span class="k">Référence</span><span class="v" style="font-family:monospace;font-size:12px">${data.ref}</span></div>
-        <div class="tr"><span class="k">Passager</span><span class="v">${data.nom||'—'}</span></div>
-        <div class="tr"><span class="k">Date trajet</span><span class="v orange">${data.date||'—'}</span></div>
-        <div class="tr"><span class="k">Statut</span><span class="v orange">⏰ Expiré — Trajet passé</span></div>
-      </div>
-    </div>`;
+  btn.textContent='⏳ Activation…'; btn.disabled=true;
+  status.textContent='Demande d\'accès caméra…';
+
+  try{
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:{ideal:'environment'}, width:{ideal:1280}, height:{ideal:720} }
+    });
+    video.srcObject = camStream;
+    await video.play();
+    scanActive = true;
+    btn.style.display='none';
+    btnS.style.display='flex';
+    status.textContent='● Caméra active — Pointez vers un QR code';
+    status.style.color='#22C55E';
+    requestAnimationFrame(scanFrame);
+  } catch(err){
+    status.textContent='❌ Caméra inaccessible';
+    btn.textContent='📷 Activer la caméra'; btn.disabled=false;
+    showScanErr(err.name==='NotAllowedError'
+      ? 'Accès caméra refusé. Autorisez l\'accès dans les paramètres du navigateur.'
+      : 'Impossible d\'activer la caméra : '+err.message);
+  }
+}
+
+function stopCamera(){
+  scanActive=false;
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  const video=document.getElementById('scanner-video');
+  video.srcObject=null;
+  document.getElementById('btn-start-cam').style.display='flex';
+  document.getElementById('btn-start-cam').textContent='📷 Activer la caméra';
+  document.getElementById('btn-start-cam').disabled=false;
+  document.getElementById('btn-stop-cam').style.display='none';
+  document.getElementById('cam-status').textContent='Caméra inactive';
+  document.getElementById('cam-status').style.color='';
+}
+
+// ── Scan frame par frame avec BarcodeDetector ou ZXing fallback
+let barcodeDetector = null;
+if('BarcodeDetector' in window){
+  try{ barcodeDetector = new BarcodeDetector({formats:['qr_code']}); }catch(e){}
+}
+
+async function scanFrame(){
+  if(!scanActive) return;
+  const video = document.getElementById('scanner-video');
+  if(video.readyState < 2){ requestAnimationFrame(scanFrame); return; }
+  if(scanCooldown){ requestAnimationFrame(scanFrame); return; }
+
+  try{
+    if(barcodeDetector){
+      // Méthode 1 : BarcodeDetector API (Chrome Android)
+      const codes = await barcodeDetector.detect(video);
+      if(codes.length > 0){
+        handleQrResult(codes[0].rawValue);
+        return;
+      }
+    } else {
+      // Méthode 2 : canvas + jsQR
+      const canvas = document.createElement('canvas');
+      canvas.width  = video.videoWidth  || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      if(window.jsQR){
+        const code = window.jsQR(imgData.data, imgData.width, imgData.height);
+        if(code){ handleQrResult(code.data); return; }
+      }
+    }
+  }catch(e){}
+
+  requestAnimationFrame(scanFrame);
+}
+
+function handleQrResult(raw){
+  if(scanCooldown) return;
+  scanCooldown = true;
+
+  // Vibration si dispo
+  if(navigator.vibrate) navigator.vibrate([100,50,100]);
+
+  const data = decodeToken(raw);
+  if(data && data.ref){
+    const status = getTicketStatus(data);
+    showFlash(status, data);
+    displayResult(data, 'scan-result', 'scan-ts');
+    addHistory(data);
   } else {
-    html = `<div class="result-valid">
+    showFlash('invalid', null, 'QR code non reconnu');
+  }
+
+  // Reprendre le scan après 3 secondes
+  setTimeout(()=>{
+    hideFlash();
+    scanCooldown=false;
+    if(scanActive) requestAnimationFrame(scanFrame);
+  }, 3000);
+}
+
+function showFlash(status, data, customMsg){
+  const flash = document.getElementById('scan-flash');
+  flash.className = 'scan-result-flash ' + status;
+  flash.style.display='flex';
+  if(status==='valid'){
+    document.getElementById('flash-ico').textContent='✅';
+    document.getElementById('flash-txt').textContent='BILLET VALIDE';
+    document.getElementById('flash-sub').textContent=data?data.nom||data.ref:'';
+  } else if(status==='expired'){
+    document.getElementById('flash-ico').textContent='⏰';
+    document.getElementById('flash-txt').textContent='BILLET EXPIRÉ';
+    document.getElementById('flash-sub').textContent=data?'Trajet : '+data.date:'';
+  } else {
+    document.getElementById('flash-ico').textContent='❌';
+    document.getElementById('flash-txt').textContent='INVALIDE';
+    document.getElementById('flash-sub').textContent=customMsg||'Billet non reconnu';
+  }
+}
+function hideFlash(){ document.getElementById('scan-flash').style.display='none'; }
+
+function showScanErr(msg){
+  const el=document.getElementById('scan-result');
+  el.innerHTML=`<div class="aerr" style="display:block">${msg}</div>`;
+}
+
+// ══════════════════════════════════════════════
+//  SAISIE MANUELLE
+// ══════════════════════════════════════════════
+function verifyManual(){
+  const input=document.getElementById('ref-input').value.trim();
+  if(!input){ showManualErr('Saisissez une référence ou collez les données du QR code.'); return; }
+  const data=decodeToken(input);
+  if(data && data.ref){
+    displayResult(data,'manual-result','manual-ts');
+    addHistory(data);
+  } else if(input.startsWith('FOCUS-BK-')){
+    displayRefOnly(input,'manual-result');
+  } else {
+    showManualErr('Données non reconnues. Collez les données du QR code ou une référence FOCUS-BK-...');
+  }
+}
+function clearManual(){
+  document.getElementById('manual-result').innerHTML='';
+  document.getElementById('ref-input').value='';
+  document.getElementById('manual-ts').textContent='';
+  hideManualErr();
+}
+function showManualErr(msg){ const e=document.getElementById('err-box'); e.textContent=msg; e.style.display='block'; }
+function hideManualErr(){ document.getElementById('err-box').style.display='none'; }
+
+// ══════════════════════════════════════════════
+//  DECODE & DISPLAY
+// ══════════════════════════════════════════════
+function decodeToken(raw){
+  let token=raw.trim();
+  if(token.includes('?t=')) token=token.split('?t=')[1].split('&')[0];
+  try{ return JSON.parse(decodeURIComponent(escape(atob(token)))); }
+  catch(e){ return null; }
+}
+
+function getTicketStatus(data){
+  if(!data.valid) return 'invalid';
+  try{
+    const months={'janvier':0,'février':1,'mars':2,'avril':3,'mai':4,'juin':5,'juillet':6,'août':7,'septembre':8,'octobre':9,'novembre':10,'décembre':11};
+    const parts=(data.date||'').toLowerCase().replace(/,/g,'').split(/\s+/);
+    let day,month,year;
+    parts.forEach(p=>{
+      const n=parseInt(p);
+      if(!isNaN(n)&&n>12&&n<32) day=n;
+      if(months[p]!==undefined) month=months[p];
+      if(!isNaN(n)&&n>2000) year=n;
+    });
+    if(day&&month!==undefined&&year){
+      if(new Date()>new Date(year,month,day,23,59,59)) return 'expired';
+    }
+  }catch(e){}
+  return 'valid';
+}
+
+function displayResult(data, targetId, tsId){
+  const status=getTicketStatus(data);
+  const now=new Date().toLocaleString('fr-FR',{weekday:'short',day:'numeric',month:'long',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  let html='';
+
+  if(status==='valid'){
+    html=`<div class="result-valid">
       <div class="rh"><div class="rh-ico">✅</div><div class="rh-title">Billet VALIDE</div><div class="rh-sub">Authentique · Laisser monter le passager</div></div>
       <div class="ticket-rows">
         <div class="tr"><span class="k">Référence</span><span class="v gold" style="font-family:monospace;font-size:12px">${data.ref}</span></div>
         <div class="tr"><span class="k">Passager</span><span class="v">${data.nom||'—'}</span></div>
         <div class="tr"><span class="k">Téléphone</span><span class="v">${data.tel||'—'}</span></div>
         <div class="tr"><span class="k">Date trajet</span><span class="v">${data.date||'—'}</span></div>
-        <div class="tr"><span class="k">Prise en charge</span><span class="v">${data.lieu||'—'}</span></div>
-        <div class="tr"><span class="k">Montant payé</span><span class="v gold">${data.montant||500} F CFA</span></div>
-        <div class="tr"><span class="k">Statut</span><span class="v green">✓ Payé Wave — Valide</span></div>
-        <div class="tr"><span class="k">Billet émis</span><span class="v" style="font-size:12px;color:#999">${data.issued?new Date(data.issued).toLocaleString('fr-FR'):'—'}</span></div>
+        <div class="tr"><span class="k">Arrêt</span><span class="v">${data.lieu||'—'}</span></div>
+        <div class="tr"><span class="k">Montant</span><span class="v gold">${data.montant||500} F CFA</span></div>
+        <div class="tr"><span class="k">Statut</span><span class="v green">✓ Payé Wave</span></div>
+        <div class="tr"><span class="k">Émis le</span><span class="v" style="font-size:12px;color:#999">${data.issued?new Date(data.issued).toLocaleString('fr-FR'):'—'}</span></div>
+      </div>
+    </div>`;
+  } else if(status==='expired'){
+    html=`<div class="result-expired">
+      <div class="rh"><div class="rh-ico">⏰</div><div class="rh-title">Billet EXPIRÉ</div><div class="rh-sub">La date de ce trajet est passée</div></div>
+      <div class="ticket-rows">
+        <div class="tr"><span class="k">Référence</span><span class="v" style="font-family:monospace;font-size:12px">${data.ref}</span></div>
+        <div class="tr"><span class="k">Passager</span><span class="v">${data.nom||'—'}</span></div>
+        <div class="tr"><span class="k">Date trajet</span><span class="v orange">${data.date||'—'}</span></div>
+        <div class="tr"><span class="k">Statut</span><span class="v orange">⏰ Expiré</span></div>
+      </div>
+    </div>`;
+  } else {
+    html=`<div class="result-invalid">
+      <div class="rh"><div class="rh-ico">❌</div><div class="rh-title">Billet INVALIDE</div><div class="rh-sub">Non reconnu ou falsifié — Refuser l'accès</div></div>
+      <div class="ticket-rows">
+        <div class="tr"><span class="k">Référence</span><span class="v red">${data.ref||'—'}</span></div>
+        <div class="tr"><span class="k">Statut</span><span class="v red">✕ Invalide</span></div>
       </div>
     </div>`;
   }
 
-  document.getElementById('result-area').innerHTML = html;
-  document.getElementById('ts').textContent = 'Contrôlé le ' + now;
-  window.scrollTo(0,0);
+  document.getElementById(targetId).innerHTML=html;
+  if(tsId) document.getElementById(tsId).textContent='Vérifié le '+now;
 }
 
-function displayRefOnly(ref){
-  document.getElementById('result-area').innerHTML = `
+function displayRefOnly(ref, targetId){
+  document.getElementById(targetId).innerHTML=`
   <div class="result-expired">
-    <div class="rh"><div class="rh-ico">⚠️</div><div class="rh-title">Vérification partielle</div><div class="rh-sub">Référence reconnue — scanner le QR pour vérification complète</div></div>
+    <div class="rh"><div class="rh-ico">⚠️</div><div class="rh-title">Vérification partielle</div><div class="rh-sub">Scanner le QR code pour vérification complète</div></div>
     <div class="ticket-rows">
       <div class="tr"><span class="k">Référence</span><span class="v" style="font-family:monospace">${ref}</span></div>
-      <div class="tr"><span class="k">Info</span><span class="v orange">Scanner le QR code du billet physique</span></div>
     </div>
   </div>`;
 }
 
-function clearResult(){
-  document.getElementById('result-area').innerHTML = `
-  <div class="empty-state">
-    <div class="empty-ico">🎫</div>
-    <div class="empty-title">Prêt à vérifier</div>
-    <div class="empty-sub">Scannez le QR code d'un billet FOCUS<br>ou collez les données ci-dessous</div>
-  </div>`;
-  document.getElementById('ref-input').value='';
-  document.getElementById('ts').textContent='';
-  hideAppErr();
+// ══════════════════════════════════════════════
+//  HISTORIQUE
+// ══════════════════════════════════════════════
+function addHistory(data){
+  const status=getTicketStatus(data);
+  const time=new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  scanHistory.unshift({data, status, time});
+  renderHistory();
 }
 
-function showErr(msg){ const e=document.getElementById('err-box'); e.textContent=msg; e.style.display='block'; }
-function hideAppErr(){ document.getElementById('err-box').style.display='none'; }
-function clearErr(){ hideAppErr(); }
+function renderHistory(){
+  const el=document.getElementById('hist-list');
+  if(!scanHistory.length){
+    el.innerHTML=`<div class="empty-state"><div class="empty-ico">📋</div><div class="empty-title">Aucun contrôle</div></div>`;
+    return;
+  }
+  el.innerHTML=scanHistory.map(h=>{
+    const ico = h.status==='valid'?'✅':h.status==='expired'?'⏰':'❌';
+    return `<div class="hist-item">
+      <div class="hist-ico ${h.status}">${ico}</div>
+      <div style="flex:1">
+        <div class="hist-ref">${h.data.ref||'—'}</div>
+        <div class="hist-info">${h.data.nom||''} · ${h.data.date||''}</div>
+      </div>
+      <div class="hist-time">${h.time}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Charger jsQR comme fallback si BarcodeDetector absent
+if(!window.BarcodeDetector){
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/jsqr/1.4.0/jsQR.min.js';
+  document.head.appendChild(s);
+}
 </script>
 </body>
 </html>
