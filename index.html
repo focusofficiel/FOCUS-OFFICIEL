@@ -669,25 +669,29 @@ textarea.fi{resize:vertical;min-height:100px}
       <div class="tc star" id="tc-as">
         <div class="tc-badge" id="tc-as-badge">Disponible</div>
         <div class="tc-l">Aller simple</div>
-        <div class="tc-p"><span id="prix-as">400</span> <small>F CFA</small></div>
-        <div class="tc-n">Un trajet · <span id="dep-time-lbl">6h15</span></div>
+        <div style="margin:8px 0 4px;font-size:13px;display:flex;flex-direction:column;gap:3px">
+          <span>📍 Colobane : <strong id="prix-col">400</strong> F CFA</span>
+          <span>📍 Pompier : <strong id="prix-pom">450</strong> F CFA</span>
+          <span>📍 Petersen : <strong id="prix-pet">500</strong> F CFA</span>
+        </div>
+        <div class="tc-n">Départ <span id="dep-time-lbl">6h15</span></div>
       </div>
       <div class="tc soon" id="tc-ar">
         <div class="tc-soon" id="tc-ar-badge">Bientôt</div>
         <div class="tc-l">Aller-retour</div>
-        <div class="tc-p"><span id="prix-ar">800</span> <small>F CFA</small></div>
+        <div style="font-size:13px;color:var(--gris3);margin:6px 0">Prix à venir</div>
         <div class="tc-n">2 trajets</div>
       </div>
       <div class="tc soon" id="tc-hb">
         <div class="tc-soon" id="tc-hb-badge">Bientôt</div>
         <div class="tc-l">Hebdomadaire</div>
-        <div class="tc-p"><span id="prix-hb">3 500</span> <small>F CFA</small></div>
-        <div class="tc-n">Lun – Ven · 5 jours</div>
+        <div style="font-size:13px;color:var(--gris3);margin:6px 0">Prix à venir</div>
+        <div class="tc-n">Lun – Ven</div>
       </div>
       <div class="tc soon" id="tc-mn">
         <div class="tc-soon" id="tc-mn-badge">Bientôt</div>
         <div class="tc-l">Mensuel</div>
-        <div class="tc-p"><span id="prix-mn">13 500</span> <small>F CFA</small></div>
+        <div style="font-size:13px;color:var(--gris3);margin:6px 0">Prix à venir</div>
         <div class="tc-n">~22 trajets</div>
       </div>
     </div>
@@ -789,8 +793,18 @@ textarea.fi{resize:vertical;min-height:100px}
       <!-- Généré par JS -->
     </div>
     <div id="lieu-err" class="aerr" style="display:none">Veuillez choisir votre lieu de prise en charge.</div>
-    <button class="btn-or" id="btn2" onclick="gS(3)" style="font-family:'Inter',sans-serif">Continuer →</button>
+    <button class="btn-or" id="btn2" onclick="gS2b()" style="font-family:'Inter',sans-serif">Continuer →</button>
     <button class="btn-ghost" onclick="gS(1)">← Retour</button>
+  </div>
+
+  <!-- S2b : destination -->
+  <div id="bs2b" class="sc" style="display:none">
+    <div class="ft">Votre destination</div>
+    <div class="fs">Où souhaitez-vous descendre ?</div>
+    <div class="lieu-grid" id="dest-grid"></div>
+    <div id="dest-err" class="aerr" style="display:none">Veuillez choisir votre destination.</div>
+    <button class="btn-or" id="btn2b" onclick="gS2bNext()" style="font-family:'Inter',sans-serif">Continuer →</button>
+    <button class="btn-ghost" onclick="gS(2)">← Retour</button>
   </div>
 
   <!-- S3 : infos passager -->
@@ -834,7 +848,7 @@ textarea.fi{resize:vertical;min-height:100px}
     <div class="pay-card">
       <div class="wave-ring">W</div>
       <div class="pay-merchant" style="font-family:'Inter',sans-serif">FOCUS OFFICIEL</div>
-      <div class="pay-amount"><span id="wave-price">400</span> F CFA</div>
+      <div class="pay-amount"><span id="wave-price">—</span> F CFA</div><div style="font-size:12px;color:rgba(255,255,255,.6);margin-top:2px" id="wave-dest-lbl"></div>
       <div class="pay-ref" id="p-ref">—</div>
       <a id="wave-btn" href="#" class="btn-wave" target="_blank" onclick="markPaid()">
         Payer avec Wave &nbsp;→
@@ -1034,6 +1048,13 @@ const LIEUX = [
   { id:'E', name:'Croisement Keur Massar',          note:'Dernier arrêt · Péage avant 6h30', time:'6h28' },
 ];
 
+
+const DESTINATIONS = [
+  { id:'COL', name:'Colobane', note:'Terminus principal',     prix:400 },
+  { id:'POM', name:'Pompier',  note:'Arrêt Pompier / Medina', prix:450 },
+  { id:'PET', name:'Petersen', note:'Arrêt Petersen',         prix:500 },
+];
+
 const MOIS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const JOURS = ['Di','Lu','Ma','Me','Je','Ve','Sa'];
 const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
@@ -1041,7 +1062,7 @@ const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
 let S = {
   page:'home', step:1, date:null, filePicked:false, receiptFile:null,
   calM:new Date(2026,5,1), // Juillet 2025
-  lieu:null, bk:{}, timerIv:null
+  lieu:null, dest:null, bk:{}, timerIv:null
 };
 
 // ══════════════════════════════════════════════
@@ -1225,16 +1246,22 @@ function doSubmit(){
   const ds    =S.date.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const ref   =genRef();
 
-  S.bk={ref,prenom,nom,tel,lieu:lieu.name,lieuTime:lieu.time,amount:400,ds,typeLabel:'Aller simple'};
+  // Prix selon destination
+  const destObj = DESTINATIONS.find(function(d){return d.id===S.dest;})||DESTINATIONS[0];
+  const montant = destObj.prix;
+  const destName = destObj.name;
+  S.bk={ref,prenom,nom,tel,lieu:lieu.name,lieuTime:lieu.time,dest:destName,amount:montant,montant:montant,ds,typeLabel:'Aller simple → '+destName};
 
 
 
   sendSheet({action:'booking',reference:ref,prenom,nom,tel,
-    lieu:lieu.name,date:ds,type:'Aller simple',montant:400,
+    lieu:lieu.name,dest:destName,date:ds,type:'Aller simple → '+destName,montant:montant,
     statut:'En attente de paiement',timestamp:new Date().toISOString()});
 
-  const note=encodeURIComponent(`FOCUS Aller simple ${ds}`);
-  document.getElementById('wave-btn').href=WAVE_URL+`?amount=400&client_reference=${ref}&note=${note}`;
+  const note=encodeURIComponent('FOCUS '+destName+' '+ds);
+  document.getElementById('wave-btn').href=WAVE_URL+'?amount='+montant+'&client_reference='+ref+'&note='+note;
+  document.getElementById('wave-price').textContent=montant.toLocaleString('fr-FR');
+  const wdl=document.getElementById('wave-dest-lbl');if(wdl)wdl.textContent='→ '+destName;
   document.getElementById('p-ref').textContent='Réf : '+ref;
 
   btn.disabled=false;btn.textContent='💳 Payer avec Wave →';
@@ -1544,94 +1571,121 @@ buildLieux();
 //  LECTURE CONFIG ADMIN — applique au chargement
 //  Tous les prix, horaires, statuts sont liés à l'admin
 // ══════════════════════════════════════════════
-function applyAdminConfig(){
-  try {
-    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg') || localStorage.getItem('focus_cfg') || '{}');
-    if(!cfg || !Object.keys(cfg).length) return;
 
-    // ── Plateforme ouverte/fermée
-    if(cfg.platform_open === false){
-      // Bloquer les réservations
-      window._platformClosed = true;
-    }
-
-    // ── Prix
-    const p = cfg.prices || {};
-    if(p.AS){ 
-      const el = document.getElementById('prix-as');
-      if(el) el.textContent = Number(p.AS).toLocaleString('fr-FR');
-      // Mettre à jour aussi le montant Wave
-      const wp = document.getElementById('wave-price');
-      if(wp) wp.textContent = Number(p.AS).toLocaleString('fr-FR');
-      // Mettre à jour le lien Wave avec le montant correct
-      const waveBtn = document.getElementById('wave-btn');
-      if(waveBtn){
-        const baseUrl = 'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/';
-        waveBtn.href = baseUrl + '?amount=' + p.AS;
-      }
-    }
-    if(p.AR){ const el=document.getElementById('prix-ar'); if(el) el.textContent=Number(p.AR).toLocaleString('fr-FR'); }
-    if(p.HB){ const el=document.getElementById('prix-hb'); if(el) el.textContent=Number(p.HB).toLocaleString('fr-FR'); }
-    if(p.MN){ const el=document.getElementById('prix-mn'); if(el) el.textContent=Number(p.MN).toLocaleString('fr-FR'); }
-
-    // ── Statuts tarifs (Disponible / Bientôt)
-    const ts = cfg.tarifs_status || {};
-    function setTarifStatus(badgeId, cardId, available){
-      const badge = document.getElementById(badgeId);
-      const card  = document.getElementById(cardId);
-      if(badge){
-        badge.textContent = available ? 'Disponible' : 'Bientôt';
-        badge.className   = available ? 'tc-badge' : 'tc-soon';
-      }
-      if(card){
-        card.className = available ? 'tc star' : 'tc soon';
-      }
-    }
-    if(ts.AR !== undefined) setTarifStatus('tc-ar-badge','tc-ar', ts.AR);
-    if(ts.HB !== undefined) setTarifStatus('tc-hb-badge','tc-hb', ts.HB);
-    if(ts.MN !== undefined) setTarifStatus('tc-mn-badge','tc-mn', ts.MN);
-
-    // ── Horaires
-    if(cfg.depart_time){
-      const h = cfg.depart_time.replace(':','h').replace(/^0/,'');
-      const els = document.querySelectorAll('#dep-time-lbl,.dep-time');
-      els.forEach(el => el.textContent = h);
-    }
-
-    // ── Annonce bannière
-    if(cfg.announce_active && cfg.announce_msg){
-      const colors = {info:'#1ABEF5',warning:'#F59E0B',success:'#22C55E',error:'#EF4444'};
-      const c = colors[cfg.announce_type] || colors.info;
-      const banner = document.createElement('div');
-      banner.id = 'admin-banner';
-      banner.style.cssText = `background:${c};color:#fff;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;position:sticky;top:70px;z-index:200;display:flex;align-items:center;justify-content:center;gap:12px`;
-      banner.innerHTML = `<span>${cfg.announce_msg}</span><button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:13px">✕</button>`;
-      const nav = document.querySelector('.nav');
-      if(nav) nav.insertAdjacentElement('afterend', banner);
-    }
-
-    // ── Arrêts (mise à jour de la liste si elle est affichée)
-    if(cfg.stops && cfg.stops.length){
-      const LIEUX_admin = cfg.stops.filter(s=>s.type!=='terminus'&&s.type!=='transit');
-      if(LIEUX_admin.length && typeof LIEUX !== 'undefined'){
-        // Mettre à jour le tableau LIEUX global
-        LIEUX.splice(0, LIEUX.length, ...LIEUX_admin.map((s,i)=>({
-          id: String.fromCharCode(65+i),
-          name: s.name,
-          note: s.type === 'depart' ? 'Point de départ principal' : 'Arrêt de prise en charge',
-          time: s.time
-        })));
-      }
-    }
-
-  } catch(e){ console.log('applyAdminConfig error:', e); }
-}
 
 // Appeler au démarrage
-document.addEventListener('DOMContentLoaded', applyAdminConfig);
+
 // Aussi écouter les changements de localStorage (si admin ouvert dans un autre onglet)
-window.addEventListener('storage', function(e){
-  if(e.key === 'focus_site_cfg' || e.key === 'focus_cfg') applyAdminConfig();
+
+
+
+// ══════════════════════════════════════════════
+//  DESTINATIONS & INTERRELATION ADMIN
+// ══════════════════════════════════════════════
+function getSiteCfg(){
+  try{ return JSON.parse(localStorage.getItem('focus_site_cfg')||localStorage.getItem('focus_cfg')||'{}'); }
+  catch(e){ return {}; }
+}
+
+function rDest(){
+  const cfg=getSiteCfg();
+  const dests=(cfg.destinations&&cfg.destinations.length)?cfg.destinations:DESTINATIONS;
+  document.getElementById('dest-grid').innerHTML=dests.map(function(d){
+    return '<button class="lieu-btn '+(S.dest===d.id?'sel':'')+'" onclick="selDest(''+d.id+'')">'
+      +'<div class="lieu-num">'+d.name.slice(0,3).toUpperCase()+'</div>'
+      +'<div style="flex:1;text-align:left"><div class="lieu-name">'+d.name+'</div>'
+      +'<div class="lieu-note">'+d.note+'</div></div>'
+      +'<div style="font-weight:800;color:var(--or);font-size:15px;white-space:nowrap">'+d.prix+' F</div>'
+      +'</button>';
+  }).join('');
+}
+
+function selDest(id){
+  S.dest=id; rDest();
+  document.getElementById('dest-err').style.display='none';
+}
+
+function gS2b(){
+  if(!S.lieu){document.getElementById('lieu-err').style.display='block';return;}
+  ['bs1','bs2','bs2b','bs3','bs4','bs5','bs6'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.style.display=(id==='bs2b')?'block':'none';
+  });
+  rDest(); window.scrollTo(0,0);
+}
+
+function gS2bNext(){
+  if(!S.dest){document.getElementById('dest-err').style.display='block';return;}
+  ['bs1','bs2','bs2b','bs3','bs4','bs5','bs6'].forEach(function(id){
+    const el=document.getElementById(id);
+    if(el) el.style.display=(id==='bs3')?'block':'none';
+  });
+  window.scrollTo(0,0);
+}
+
+function applyAdminConfig(){
+  try{
+    const cfg=getSiteCfg();
+    if(!cfg||!Object.keys(cfg).length) return;
+    window._platformClosed=(cfg.platform_open===false);
+
+    // Prix destinations
+    const dests=(cfg.destinations&&cfg.destinations.length)?cfg.destinations:DESTINATIONS;
+    const elCol=document.getElementById('prix-col');
+    const elPom=document.getElementById('prix-pom');
+    const elPet=document.getElementById('prix-pet');
+    dests.forEach(function(d){
+      if((d.id==='COL'||d.name==='Colobane')&&elCol) elCol.textContent=d.prix;
+      if((d.id==='POM'||d.name==='Pompier')&&elPom)  elPom.textContent=d.prix;
+      if((d.id==='PET'||d.name==='Petersen')&&elPet) elPet.textContent=d.prix;
+    });
+
+    // Statuts tarifs
+    const ts=cfg.tarifs_status||{};
+    function setTS(bid,cid,av){
+      const b=document.getElementById(bid),c=document.getElementById(cid);
+      if(b){b.textContent=av?'Disponible':'Bientôt';b.className=av?'tc-badge':'tc-soon';}
+      if(c) c.className=av?'tc star':'tc soon';
+    }
+    if(ts.AR!==undefined) setTS('tc-ar-badge','tc-ar',ts.AR);
+    if(ts.HB!==undefined) setTS('tc-hb-badge','tc-hb',ts.HB);
+    if(ts.MN!==undefined) setTS('tc-mn-badge','tc-mn',ts.MN);
+
+    // Horaire départ
+    if(cfg.depart_time){
+      const h=cfg.depart_time.replace(':','h').replace(/^0/,'');
+      const el=document.getElementById('dep-time-lbl');if(el)el.textContent=h;
+    }
+
+    // Annonce bannière
+    const ob=document.getElementById('admin-banner');if(ob)ob.remove();
+    if(cfg.announce_active&&cfg.announce_msg){
+      const c={info:'#1ABEF5',warning:'#F59E0B',success:'#22C55E',error:'#EF4444'}[cfg.announce_type]||'#1ABEF5';
+      const ban=document.createElement('div');
+      ban.id='admin-banner';
+      ban.style.cssText='background:'+c+';color:#fff;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:Inter,sans-serif;position:sticky;top:70px;z-index:200;display:flex;align-items:center;justify-content:center;gap:12px';
+      ban.innerHTML='<span>'+cfg.announce_msg+'</span><button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer">✕</button>';
+      const nav=document.querySelector('.nav');if(nav)nav.insertAdjacentElement('afterend',ban);
+    }
+
+    // Arrêts depuis admin
+    if(cfg.stops&&cfg.stops.length){
+      const nl=cfg.stops.filter(function(s){return s.type!=='terminus'&&s.type!=='transit';});
+      if(nl.length){
+        LIEUX.splice(0,LIEUX.length);
+        nl.forEach(function(s,i){
+          LIEUX.push({id:String.fromCharCode(65+i),name:s.name,
+            note:s.type==='depart'?'Point de départ':'Arrêt',time:s.time});
+        });
+      }
+    }
+    if(cfg.closed_msg) window._closedMsg=cfg.closed_msg;
+  }catch(e){}
+}
+
+document.addEventListener('DOMContentLoaded',applyAdminConfig);
+window.addEventListener('storage',function(e){
+  if(e.key==='focus_site_cfg'||e.key==='focus_cfg') applyAdminConfig();
 });
 
 </script>
