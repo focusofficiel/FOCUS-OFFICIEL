@@ -877,12 +877,14 @@ textarea.fi{resize:vertical;min-height:100px}
         <div id="up-err" style="display:none;margin-top:.75rem;background:var(--rouge-l);border:1.5px solid rgba(192,57,43,.2);color:var(--rouge);border-radius:10px;padding:10px 14px;font-size:13px;font-family:'Inter',sans-serif"></div>
       </div>
 
-      <!-- Bouton générer -->
-      <button class="btn-or" onclick="genererBillet()" style="font-family:'Inter',sans-serif;font-size:16px">
+      <!-- Bouton générer — désactivé tant que pas de reçu -->
+      <button class="btn-or" id="btn-generer" onclick="genererBillet()"
+        disabled
+        style="font-family:'Inter',sans-serif;font-size:16px;opacity:.45;cursor:not-allowed;transition:opacity .3s">
         🎫 Générer mon billet de transport
       </button>
-      <p style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--gris3)">
-        Téléversez votre reçu puis cliquez pour obtenir votre billet
+      <p id="btn-generer-hint" style="text-align:center;margin-top:8px;font-size:12px;font-family:'Inter',sans-serif;color:var(--rouge)">
+        ⚠️ Téléversez d'abord votre reçu Wave pour débloquer le billet
       </p>
     </div>
 
@@ -1058,7 +1060,13 @@ function go(p){
 //  Ouverture : 2 jours avant à 9h00
 //  Fermeture : la veille à 17h00
 // ══════════════════════════════════════════════
-function isBookingOpen(){ return true; }
+function isBookingOpen(){
+  try{
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||'{}');
+    if(cfg.platformeOuverte === false) return false;
+  }catch(e){}
+  return true;
+}
 
 function isDateBookable(tripDate){
   const now  = new Date();
@@ -1269,10 +1277,11 @@ function genererBillet(){
   if(!S.filePicked){
     const er=document.getElementById('up-err');
     er.style.display='block';
-    er.textContent='⚠️ Veuillez d\'abord téléverser votre reçu Wave.';
+    er.textContent='⚠️ Vous devez téléverser votre reçu Wave avant de générer votre billet.';
     return;
   }
-  showBillet(S.bk);
+  // Analyser le reçu et générer le billet
+  confirmReceipt();
 }
 
 // ══════════════════════════════════════════════
@@ -1501,6 +1510,27 @@ function sendSheet(data){
 // ── INIT
 rCal();
 buildLieux();
+
+// Lire annonce admin
+(function(){
+  try{
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||'{}');
+    if(cfg.annonce && cfg.annonce.msg){
+      const colors = {info:'#1ABEF5',warning:'#F59E0B',success:'#22C55E',error:'#EF4444'};
+      const c = colors[cfg.annonce.type]||colors.info;
+      const banner = document.createElement('div');
+      banner.style.cssText=`background:${c};color:#fff;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;position:fixed;top:0;left:0;right:0;z-index:2000`;
+      banner.textContent = cfg.annonce.msg;
+      const close=document.createElement('button');
+      close.textContent='✕';
+      close.style.cssText='background:none;border:none;color:#fff;font-size:16px;cursor:pointer;margin-left:12px;opacity:.7';
+      close.onclick=()=>banner.remove();
+      banner.appendChild(close);
+      document.body.prepend(banner);
+    }
+  }catch(e){}
+})();
+
 </script>
 </body>
 </html>
