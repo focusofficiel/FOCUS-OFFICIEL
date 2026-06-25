@@ -785,29 +785,24 @@ textarea.fi{resize:vertical;min-height:100px}
     <button class="btn-or" id="btn1" onclick="gS(2)" disabled style="font-family:'Inter',sans-serif">Continuer →</button>
   </div>
 
-  <!-- S2 : lieu de prise en charge -->
+  <!-- S2 : lieu de prise en charge + destination -->
   <div id="bs2" class="sc" style="display:none">
-    <div class="ft">Lieu de prise en charge</div>
-    <div class="fs">Où souhaitez-vous monter dans le car ?</div>
-    <div class="lieu-grid" id="lieu-grid">
-      <!-- Généré par JS -->
-    </div>
+    <div class="ft">Lieu &amp; Destination</div>
+    <div class="fs">Choisissez votre arrêt de départ et votre destination</div>
+
+    <div style="font-weight:700;font-size:14px;margin-bottom:8px;font-family:'Inter',sans-serif">📍 Lieu de prise en charge</div>
+    <div class="lieu-grid" id="lieu-grid"></div>
     <div id="lieu-err" class="aerr" style="display:none">Veuillez choisir votre lieu de prise en charge.</div>
-    <button class="btn-or" id="btn2" onclick="gS2b()" style="font-family:'Inter',sans-serif">Continuer →</button>
+
+    <div style="font-weight:700;font-size:14px;margin:16px 0 8px;font-family:'Inter',sans-serif">🏁 Destination</div>
+    <div class="lieu-grid" id="dest-grid"></div>
+    <div id="dest-err" class="aerr" style="display:none">Veuillez choisir votre destination.</div>
+
+    <button class="btn-or" id="btn2" onclick="gS(3)" style="font-family:'Inter',sans-serif">Continuer →</button>
     <button class="btn-ghost" onclick="gS(1)">← Retour</button>
   </div>
 
-  <!-- S2b : destination -->
-  <div id="bs2b" class="sc" style="display:none">
-    <div class="ft">Votre destination</div>
-    <div class="fs">Où souhaitez-vous descendre ?</div>
-    <div class="lieu-grid" id="dest-grid"></div>
-    <div id="dest-err" class="aerr" style="display:none">Veuillez choisir votre destination.</div>
-    <button class="btn-or" id="btn2b" onclick="gS2bNext()" style="font-family:'Inter',sans-serif">Continuer →</button>
-    <button class="btn-ghost" onclick="gS(2)">← Retour</button>
-  </div>
-
-  <!-- S3 : infos passager -->
+    <!-- S3 : infos passager -->
   <div id="bs3" class="sc" style="display:none">
     <div class="ft">Vos informations</div>
     <div class="fs">Pour l'émission de votre billet</div>
@@ -1072,7 +1067,7 @@ function go(p){
   document.querySelectorAll('.pg').forEach(x=>x.classList.remove('on'));
   document.getElementById('pg-'+p).classList.add('on');
   document.querySelectorAll('.nb').forEach((b,i)=>b.classList.toggle('on',['home','book','abn','avis'][i]===p));
-  if(p==='book'){S.step=1;rBook(1);rCal();buildLieux();checkBookingOpen();}
+  if(p==='book'){S.step=1;S.lieu=null;S.dest=null;rBook(1);rCal();buildLieux();checkBookingOpen();}
   window.scrollTo(0,0);S.page=p;
 }
 
@@ -1129,6 +1124,7 @@ function checkBookingOpen(){
 // ══════════════════════════════════════════════
 function gS(n){
   if(n===3 && !S.lieu){ document.getElementById('lieu-err').style.display='block'; return; }
+  if(n===3 && !S.dest){ document.getElementById('dest-err').style.display='block'; return; }
   if(n===4 && !val3()) return;
   rBook(n);
   if(n===4) fillRecap();
@@ -1142,6 +1138,7 @@ function rBook(n){
     const t=document.getElementById('st'+i);
     if(t)t.className='stab'+(i===n?' on':i<n?' done':'');
   }
+  if(n===2){ setTimeout(function(){rLieu();rDest();},10); }
   window.scrollTo(0,0);
 }
 
@@ -1614,23 +1611,9 @@ function selDest(id){
   document.getElementById('dest-err').style.display='none';
 }
 
-function gS2b(){
-  if(!S.lieu){document.getElementById('lieu-err').style.display='block';return;}
-  ['bs1','bs2','bs2b','bs3','bs4','bs5','bs6'].forEach(function(id){
-    const el=document.getElementById(id);
-    if(el) el.style.display=(id==='bs2b')?'block':'none';
-  });
-  rDest(); window.scrollTo(0,0);
-}
 
-function gS2bNext(){
-  if(!S.dest){document.getElementById('dest-err').style.display='block';return;}
-  ['bs1','bs2','bs2b','bs3','bs4','bs5','bs6'].forEach(function(id){
-    const el=document.getElementById(id);
-    if(el) el.style.display=(id==='bs3')?'block':'none';
-  });
-  window.scrollTo(0,0);
-}
+
+
 
 function applyAdminConfig(){
   try{
