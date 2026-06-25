@@ -514,7 +514,31 @@ input[type=range]{width:100%;accent-color:var(--or);cursor:pointer}
                 </div>
               </div>
             </div>
-            <button class="btn btn-or btn-full" onclick="savePricing()">💾 Appliquer les tarifs</button>
+            </div>
+        </div>
+
+        <!-- Destinations & prix -->
+        <div class="card">
+          <div class="card-h"><div class="card-t">📍 Destinations & Tarifs aller simple</div><div class="card-s">Le prix Wave s'ajuste automatiquement selon la destination choisie</div></div>
+          <div class="card-b" id="dest-editor">
+            <!-- Généré par JS -->
+          </div>
+          <div class="card-b" style="border-top:1px solid var(--bord)">
+            <div class="card-t" style="margin-bottom:.75rem;font-size:13px">➕ Ajouter une destination</div>
+            <div class="sg3">
+              <div class="fg"><span class="sh">Nom</span><input class="si" id="dest-name" placeholder="Ex: Sandaga"></div>
+              <div class="fg"><span class="sh">Note</span><input class="si" id="dest-note" placeholder="Ex: Arrêt Sandaga"></div>
+              <div class="fg"><span class="sh">Prix (F CFA)</span><input class="si" type="number" id="dest-prix" placeholder="550" min="0"></div>
+            </div>
+            <button class="btn btn-bl" onclick="addDestination()">➕ Ajouter</button>
+          </div>
+          <div class="card-b" style="border-top:1px solid var(--bord)">
+            <button class="btn btn-or btn-full" onclick="saveDestinations()">💾 Enregistrer les destinations</button>
+          </div>
+        </div>
+
+        <div class="card"><div class="card-b">
+        <button class="btn btn-or btn-full" onclick="savePricing()">💾 Appliquer les abonnements</button>
           </div>
         </div>
 
@@ -644,6 +668,11 @@ function loadCFG_initial(){
         { name:'Arrêt Car', time:'6h24', type:'pickup' },
         { name:'Croisement Keur Massar', time:'6h28', type:'pickup' },
         { name:'Colobane', time:'< 7h30', type:'terminus' },
+      ],
+      destinations: [
+        { id:'COL', name:'Colobane', note:'Terminus principal',     prix:400 },
+        { id:'POM', name:'Pompier',  note:'Arrêt Pompier / Medina', prix:450 },
+        { id:'PET', name:'Petersen', note:'Arrêt Petersen',         prix:500 },
       ],
       depart_time:'06:15', arrive_time:'07:30',
       route_desc:'Gare TER Keur Mbaye Fall → Colobane',
@@ -790,6 +819,7 @@ function nav(p){
   document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
   const ni=document.getElementById('n-'+p);if(ni)ni.classList.add('on');
   const titles={dashboard:'Tableau de Bord',reservations:'Réservations',overflow:'Liste d\'attente',cars:'Gestion des Cars',platform:'Contrôle Plateforme',pricing:'Tarifs & Paiements',routes:'Trajets & Horaires',avis:'Avis Clients',ai:'Analyse IA'};
+  if(p==='pricing') setTimeout(renderDestinations,50);
   document.getElementById('tb-t').textContent=titles[p]||p;
 }
 
@@ -1287,9 +1317,55 @@ function stBadge(s){
 }
 function saveCFG(){
   localStorage.setItem('focus_cfg', JSON.stringify(CFG));
-  localStorage.setItem('focus_site_cfg', JSON.stringify(CFG)); // sync vers index.html
+  localStorage.setItem('focus_site_cfg', JSON.stringify(CFG));
 }
 function toast(msg,d=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),d);}
+
+// ══════════════════════════════════════════════
+//  DESTINATIONS
+// ══════════════════════════════════════════════
+function renderDestinations(){
+  const el=document.getElementById('dest-editor');
+  if(!el) return;
+  el.innerHTML=CFG.destinations.map(function(d,i){
+    return '<div style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--gris);border-radius:10px;margin-bottom:8px">'
+      +'<div style="font-weight:700;font-size:14px;min-width:80px">'+d.name+'</div>'
+      +'<div style="flex:1;font-size:12px;color:var(--gris3)">'+d.note+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<input class="si" type="number" value="'+d.prix+'" style="width:90px;padding:6px 8px;font-size:13px" '
+      +'onchange="CFG.destinations['+i+'].prix=parseInt(this.value)||0">'
+      +'<span style="font-size:12px;color:var(--gris3)">F CFA</span>'
+      +(i>0?'<button class="btn btn-rg" style="padding:5px 8px;font-size:11px" onclick="removeDestination('+i+')">✕</button>':'')
+      +'</div></div>';
+  }).join('');
+}
+
+function addDestination(){
+  const name=document.getElementById('dest-name').value.trim();
+  const note=document.getElementById('dest-note').value.trim();
+  const prix=parseInt(document.getElementById('dest-prix').value)||0;
+  if(!name){toast('⚠️ Saisissez un nom de destination');return;}
+  const id=name.toUpperCase().slice(0,3).replace(/[^A-Z]/g,'');
+  CFG.destinations.push({id,name,note:note||name,prix});
+  renderDestinations();
+  document.getElementById('dest-name').value='';
+  document.getElementById('dest-note').value='';
+  document.getElementById('dest-prix').value='';
+  toast('📍 Destination ajoutée');
+}
+
+function removeDestination(i){
+  if(CFG.destinations.length<=1){toast('⚠️ Gardez au moins une destination');return;}
+  CFG.destinations.splice(i,1);
+  renderDestinations();
+}
+
+function saveDestinations(){
+  saveCFG();
+  syncConfigToSite();
+  toast('✅ Destinations enregistrées et synchronisées avec la plateforme !');
+}
+
 </script>
 </body>
 </html>
