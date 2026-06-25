@@ -206,10 +206,18 @@ input[type=range]{width:100%;accent-color:var(--or);cursor:pointer}
       <div class="pd" id="d4"></div><div class="pd" id="d5"></div>
     </div>
     <div class="pp">
-      <button class="pk" onclick="pressKey('1')">1</button><button class="pk" onclick="pressKey('2')">2</button><button class="pk" onclick="pressKey('3')">3</button>
-      <button class="pk" onclick="pressKey('4')">4</button><button class="pk" onclick="pressKey('5')">5</button><button class="pk" onclick="pressKey('6')">6</button>
-      <button class="pk" onclick="pressKey('7')">7</button><button class="pk" onclick="pressKey('8')">8</button><button class="pk" onclick="pressKey('9')">9</button>
-      <button class="pk emp"></button><button class="pk" onclick="pressKey('0')">0</button><button class="pk del" onclick="pressDelete()">⌫</button>
+      <button class="pk" id="kb1" type="button">1</button>
+      <button class="pk" id="kb2" type="button">2</button>
+      <button class="pk" id="kb3" type="button">3</button>
+      <button class="pk" id="kb4" type="button">4</button>
+      <button class="pk" id="kb5" type="button">5</button>
+      <button class="pk" id="kb6" type="button">6</button>
+      <button class="pk" id="kb7" type="button">7</button>
+      <button class="pk" id="kb8" type="button">8</button>
+      <button class="pk" id="kb9" type="button">9</button>
+      <button class="pk emp" type="button"></button>
+      <button class="pk" id="kb0" type="button">0</button>
+      <button class="pk del" id="kbdel" type="button">⌫</button>
     </div>
     <div class="l-att" id="l-att"></div>
   </div>
@@ -611,79 +619,147 @@ const MAX_ATT   = 5;
 const BLOCK_MS  = 10 * 60 * 1000;
 const SESS_MS   = 8 * 60 * 60 * 1000;
 
-// Configuration plateforme (stockée localement + sync sheet)
-let _savedCfg = {};
-try {
-  _savedCfg = JSON.parse(localStorage.getItem('focus_cfg') || localStorage.getItem('focus_site_cfg') || '{}');
-} catch(e) {}
-let CFG = Object.assign(JSON.parse(JSON.stringify({
-  platform_open: true,
-  pilot_mode: true,
-  open_time: '09:00',
-  close_time: '17:00',
-  max_days: 14,
-  closed_msg: 'Les réservations sont temporairement fermées. Revenez bientôt !',
-  operating_days: [1,2,3,4,5],
-  announce_active: false,
-  announce_msg: '',
-  announce_type: 'info',
-  prices: { AS:400, AR:800, HB:3500, MN:13500 },
-  tarifs_status: { AR:false, HB:false, MN:false },
-  payment_methods: [
-    { id:'wave', name:'Wave', num:'788332149', url:'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/', color:'#1ABEF5', active:true },
-    { id:'om', name:'Orange Money', num:'', url:'', color:'#FF6600', active:false },
-  ],
-  cars: [
-    { num:1, capacity:40, active:true, status:'open' },
-  ],
-  stops: [
-    { name:'Gare TER Keur Mbaye Fall', time:'6h15', type:'depart' },
-    { name:'Rond Point Grand Mbao', time:'6h18', type:'pickup' },
-    { name:'Diouma Dji', time:'6h22', type:'pickup' },
-    { name:'Arrêt Car', time:'6h24', type:'pickup' },
-    { name:'Croisement Keur Massar', time:'6h28', type:'pickup' },
-    { name:'Colobane', time:'< 7h30', type:'terminus' },
-  ],
-  depart_time:'06:15',
-  arrive_time:'07:30',
-  route_desc:'Gare TER Keur Mbaye Fall → Colobane',
-}), _savedCfg);
+let CFG = loadCFG_initial();
+function loadCFG_initial(){
+  try {
+    const s1 = localStorage.getItem('focus_cfg');
+    const s2 = localStorage.getItem('focus_site_cfg');
+    const base = {
+      platform_open: true, pilot_mode: true,
+      open_time: '09:00', close_time: '17:00', max_days: 14,
+      closed_msg: 'Les réservations sont temporairement fermées. Revenez bientôt !',
+      operating_days: [1,2,3,4,5],
+      announce_active: false, announce_msg: '', announce_type: 'info',
+      prices: { AS:400, AR:800, HB:3500, MN:13500 },
+      tarifs_status: { AR:false, HB:false, MN:false },
+      payment_methods: [
+        { id:'wave', name:'Wave', num:'788332149', url:'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/', color:'#1ABEF5', active:true },
+        { id:'om', name:'Orange Money', num:'', url:'', color:'#FF6600', active:false },
+      ],
+      cars: [{ num:1, capacity:40, active:true, status:'open' }],
+      stops: [
+        { name:'Gare TER Keur Mbaye Fall', time:'6h15', type:'depart' },
+        { name:'Rond Point Grand Mbao', time:'6h18', type:'pickup' },
+        { name:'Diouma Dji', time:'6h22', type:'pickup' },
+        { name:'Arrêt Car', time:'6h24', type:'pickup' },
+        { name:'Croisement Keur Massar', time:'6h28', type:'pickup' },
+        { name:'Colobane', time:'< 7h30', type:'terminus' },
+      ],
+      depart_time:'06:15', arrive_time:'07:30',
+      route_desc:'Gare TER Keur Mbaye Fall → Colobane',
+    };
+    const saved = s1 ? JSON.parse(s1) : (s2 ? JSON.parse(s2) : {});
+    return Object.assign(base, saved);
+  } catch(e){ return {}; }
+}
 
 let SHEET_URL = localStorage.getItem('focus_sheet_url') || '';
-
 let DB = { reservations:[], avis:[], overflow:[], lastFetch:null };
-let pinEntry='', attempts=parseInt(localStorage.getItem('adm_att')||'0'), blockedUntil=parseInt(localStorage.getItem('adm_blk')||'0'), sessStart=null;
 
-// ══════════════════════════════════════════════════════════
-//  LOGIN
-// ══════════════════════════════════════════════════════════
+// ── PIN STATE
+let pinEntry = '';
+let attempts = parseInt(localStorage.getItem('adm_att')||'0');
+let blockedUntil = parseInt(localStorage.getItem('adm_blk')||'0');
+let sessStart = null;
+
+// ── INIT
 (function init(){
-  if(Date.now()<blockedUntil){showBlock();return;}
-  const s=sessionStorage.getItem('focus_adm');
-  if(s){const d=JSON.parse(s);if(Date.now()-d.s<SESS_MS){sessStart=d.s;showApp();return;}}
+  if(Date.now() < blockedUntil){ showBlockMsg(); return; }
+  const s = sessionStorage.getItem('focus_adm');
+  if(s){ const d=JSON.parse(s); if(Date.now()-d.s<SESS_MS){ sessStart=d.s; showApp(); return; } }
   updAtt();
+  setupPinKeyboard();
 })();
 
-function pressKey(k){if(Date.now()<blockedUntil){showBlock();return;}if(pinEntry.length>=6)return;pinEntry+=k;updDots();if(pinEntry.length===6)setTimeout(chkPin,150);}
-function pressDelete(){pinEntry=pinEntry.slice(0,-1);updDots();document.getElementById('l-err').style.display='none';}
-function updDots(){for(let i=0;i<6;i++){const d=document.getElementById('d'+i);d.classList.toggle('on',i<pinEntry.length);d.classList.remove('er');}}
-function chkPin(){
-  if(pinEntry===PIN){
-    attempts=0;localStorage.removeItem('adm_att');localStorage.removeItem('adm_blk');
-    sessStart=Date.now();sessionStorage.setItem('focus_adm',JSON.stringify({s:sessStart}));
-    for(let i=0;i<6;i++){const d=document.getElementById('d'+i);d.style.background='#1B8A4C';}
-    setTimeout(showApp,400);
-  } else {
-    attempts++;localStorage.setItem('adm_att',attempts);
-    for(let i=0;i<6;i++)document.getElementById('d'+i).classList.add('er');
-    setTimeout(()=>{pinEntry='';updDots();},500);
-    if(attempts>=MAX_ATT){blockedUntil=Date.now()+BLOCK_MS;localStorage.setItem('adm_blk',blockedUntil);showBlock();}
-    else{const l=MAX_ATT-attempts;showErr(`Code incorrect. ${l} tentative${l>1?'s':''} restante${l>1?'s':''}.`);updAtt();}
+// ── SETUP KEYBOARD — addEventListener uniquement, pas de onclick inline
+function setupPinKeyboard(){
+  // Boutons clavier PIN
+  ['1','2','3','4','5','6','7','8','9','0'].forEach(function(digit){
+    const btn = document.getElementById('kb'+digit);
+    if(btn) btn.addEventListener('click', function(){ addDigit(digit); });
+  });
+  const del = document.getElementById('kbdel');
+  if(del) del.addEventListener('click', removeDigit);
+
+  // Clavier physique
+  document.addEventListener('keydown', function(e){
+    if(document.getElementById('login-screen').style.display === 'none') return;
+    if(e.key >= '0' && e.key <= '9') addDigit(e.key);
+    if(e.key === 'Backspace') removeDigit();
+  });
+}
+
+function addDigit(k){
+  if(Date.now() < blockedUntil){ showBlockMsg(); return; }
+  if(pinEntry.length >= 6) return;
+  pinEntry += k;
+  updDots();
+  if(pinEntry.length === 6) setTimeout(chkPin, 150);
+}
+
+function removeDigit(){
+  pinEntry = pinEntry.slice(0,-1);
+  updDots();
+  document.getElementById('l-err').style.display='none';
+}
+
+function updDots(){
+  for(let i=0;i<6;i++){
+    const d=document.getElementById('d'+i);
+    if(!d) continue;
+    d.classList.toggle('on', i<pinEntry.length);
+    d.classList.remove('er');
   }
 }
-function showBlock(){const m=Math.ceil((blockedUntil-Date.now())/60000);showErr(`⛔ Accès bloqué ${m} min. Trop de tentatives.`);}
-function updAtt(){const e=document.getElementById('l-att');e.textContent=attempts>0?`${attempts}/${MAX_ATT} tentatives`:'';}
-function showErr(m){const e=document.getElementById('l-err');e.textContent=m;e.style.display='block';}
+
+function chkPin(){
+  if(pinEntry === PIN){
+    attempts=0;
+    localStorage.removeItem('adm_att');
+    localStorage.removeItem('adm_blk');
+    sessStart=Date.now();
+    sessionStorage.setItem('focus_adm',JSON.stringify({s:sessStart}));
+    for(let i=0;i<6;i++){
+      const d=document.getElementById('d'+i);
+      if(d) d.style.background='#1B8A4C';
+    }
+    setTimeout(showApp, 400);
+  } else {
+    attempts++;
+    localStorage.setItem('adm_att', attempts);
+    for(let i=0;i<6;i++){
+      const d=document.getElementById('d'+i);
+      if(d) d.classList.add('er');
+    }
+    setTimeout(function(){ pinEntry=''; updDots(); }, 500);
+    if(attempts >= MAX_ATT){
+      blockedUntil = Date.now()+BLOCK_MS;
+      localStorage.setItem('adm_blk', blockedUntil);
+      showBlockMsg();
+    } else {
+      const l = MAX_ATT-attempts;
+      showErr('Code incorrect. '+l+' tentative'+(l>1?'s':'')+' restante'+(l>1?'s':'')+'.', false);
+      updAtt();
+    }
+  }
+}
+
+function showBlockMsg(){
+  const m = Math.ceil((blockedUntil-Date.now())/60000);
+  showErr('⛔ Accès bloqué '+m+' min. Trop de tentatives.', false);
+}
+
+function updAtt(){
+  const e=document.getElementById('l-att');
+  if(e) e.textContent = attempts>0 ? attempts+'/'+MAX_ATT+' tentatives' : '';
+}
+
+function showErr(m, hide){
+  const e=document.getElementById('l-err');
+  if(!e) return;
+  e.textContent=m;
+  e.style.display='block';
+}
 
 function showApp(){
   document.getElementById('login-screen').style.display='none';
