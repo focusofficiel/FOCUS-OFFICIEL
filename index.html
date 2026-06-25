@@ -665,29 +665,29 @@ textarea.fi{resize:vertical;min-height:100px}
   <div class="section alt">
     <div class="section-title">Nos tarifs</div>
     <div class="section-sub">Transparents, sans frais cachés · Réservations ouvertes à partir du Mercredi 10 juin 2026</div>
-    <div class="tg">
-      <div class="tc star">
-        <div class="tc-badge">Disponible</div>
+    <div class="tg" id="tarifs-grid">
+      <div class="tc star" id="tc-as">
+        <div class="tc-badge" id="tc-as-badge">Disponible</div>
         <div class="tc-l">Aller simple</div>
-        <div class="tc-p">400 <small>F CFA</small></div>
-        <div class="tc-n">Un trajet · 6h15</div>
+        <div class="tc-p"><span id="prix-as">400</span> <small>F CFA</small></div>
+        <div class="tc-n">Un trajet · <span id="dep-time-lbl">6h15</span></div>
       </div>
-      <div class="tc soon">
-        <div class="tc-soon">Bientôt</div>
+      <div class="tc soon" id="tc-ar">
+        <div class="tc-soon" id="tc-ar-badge">Bientôt</div>
         <div class="tc-l">Aller-retour</div>
-        <div class="tc-p">800 <small>F CFA</small></div>
+        <div class="tc-p"><span id="prix-ar">800</span> <small>F CFA</small></div>
         <div class="tc-n">2 trajets</div>
       </div>
-      <div class="tc soon">
-        <div class="tc-soon">Bientôt</div>
+      <div class="tc soon" id="tc-hb">
+        <div class="tc-soon" id="tc-hb-badge">Bientôt</div>
         <div class="tc-l">Hebdomadaire</div>
-        <div class="tc-p">3 500 <small>F CFA</small></div>
+        <div class="tc-p"><span id="prix-hb">3 500</span> <small>F CFA</small></div>
         <div class="tc-n">Lun – Ven · 5 jours</div>
       </div>
-      <div class="tc soon">
-        <div class="tc-soon">Bientôt</div>
+      <div class="tc soon" id="tc-mn">
+        <div class="tc-soon" id="tc-mn-badge">Bientôt</div>
         <div class="tc-l">Mensuel</div>
-        <div class="tc-p">13 500 <small>F CFA</small></div>
+        <div class="tc-p"><span id="prix-mn">13 500</span> <small>F CFA</small></div>
         <div class="tc-n">~22 trajets</div>
       </div>
     </div>
@@ -834,7 +834,7 @@ textarea.fi{resize:vertical;min-height:100px}
     <div class="pay-card">
       <div class="wave-ring">W</div>
       <div class="pay-merchant" style="font-family:'Inter',sans-serif">FOCUS OFFICIEL</div>
-      <div class="pay-amount">400 F CFA</div>
+      <div class="pay-amount"><span id="wave-price">400</span> F CFA</div>
       <div class="pay-ref" id="p-ref">—</div>
       <a id="wave-btn" href="#" class="btn-wave" target="_blank" onclick="markPaid()">
         Payer avec Wave &nbsp;→
@@ -1266,11 +1266,19 @@ function upProcess(file){
   document.getElementById('up-fsize').textContent=(file.size/1024).toFixed(0)+' Ko';
   document.getElementById('up-prev').style.display='block';
   S.receiptFile=file; S.filePicked=true;
+  const btnG=document.getElementById('btn-generer');
+  const hint=document.getElementById('btn-generer-hint');
+  if(btnG){btnG.disabled=false;btnG.style.opacity='1';btnG.style.cursor='pointer';btnG.style.filter='none';}
+  if(hint){hint.style.color='var(--vert)';hint.textContent='✓ Reçu téléversé — Cliquez pour générer votre billet';}
 }
 function upRemove(){
   document.getElementById('up-prev').style.display='none';
   document.getElementById('up-file').value='';
   S.receiptFile=null; S.filePicked=false;
+  const btnG=document.getElementById('btn-generer');
+  const hint=document.getElementById('btn-generer-hint');
+  if(btnG){btnG.disabled=true;btnG.style.opacity='.4';btnG.style.cursor='not-allowed';}
+  if(hint){hint.style.color='var(--rouge)';hint.textContent='⚠️ Téléversez votre reçu Wave pour débloquer ce bouton';}
 }
 
 function genererBillet(){
@@ -1530,6 +1538,101 @@ buildLieux();
     }
   }catch(e){}
 })();
+
+
+// ══════════════════════════════════════════════
+//  LECTURE CONFIG ADMIN — applique au chargement
+//  Tous les prix, horaires, statuts sont liés à l'admin
+// ══════════════════════════════════════════════
+function applyAdminConfig(){
+  try {
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg') || localStorage.getItem('focus_cfg') || '{}');
+    if(!cfg || !Object.keys(cfg).length) return;
+
+    // ── Plateforme ouverte/fermée
+    if(cfg.platform_open === false){
+      // Bloquer les réservations
+      window._platformClosed = true;
+    }
+
+    // ── Prix
+    const p = cfg.prices || {};
+    if(p.AS){ 
+      const el = document.getElementById('prix-as');
+      if(el) el.textContent = Number(p.AS).toLocaleString('fr-FR');
+      // Mettre à jour aussi le montant Wave
+      const wp = document.getElementById('wave-price');
+      if(wp) wp.textContent = Number(p.AS).toLocaleString('fr-FR');
+      // Mettre à jour le lien Wave avec le montant correct
+      const waveBtn = document.getElementById('wave-btn');
+      if(waveBtn){
+        const baseUrl = 'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/';
+        waveBtn.href = baseUrl + '?amount=' + p.AS;
+      }
+    }
+    if(p.AR){ const el=document.getElementById('prix-ar'); if(el) el.textContent=Number(p.AR).toLocaleString('fr-FR'); }
+    if(p.HB){ const el=document.getElementById('prix-hb'); if(el) el.textContent=Number(p.HB).toLocaleString('fr-FR'); }
+    if(p.MN){ const el=document.getElementById('prix-mn'); if(el) el.textContent=Number(p.MN).toLocaleString('fr-FR'); }
+
+    // ── Statuts tarifs (Disponible / Bientôt)
+    const ts = cfg.tarifs_status || {};
+    function setTarifStatus(badgeId, cardId, available){
+      const badge = document.getElementById(badgeId);
+      const card  = document.getElementById(cardId);
+      if(badge){
+        badge.textContent = available ? 'Disponible' : 'Bientôt';
+        badge.className   = available ? 'tc-badge' : 'tc-soon';
+      }
+      if(card){
+        card.className = available ? 'tc star' : 'tc soon';
+      }
+    }
+    if(ts.AR !== undefined) setTarifStatus('tc-ar-badge','tc-ar', ts.AR);
+    if(ts.HB !== undefined) setTarifStatus('tc-hb-badge','tc-hb', ts.HB);
+    if(ts.MN !== undefined) setTarifStatus('tc-mn-badge','tc-mn', ts.MN);
+
+    // ── Horaires
+    if(cfg.depart_time){
+      const h = cfg.depart_time.replace(':','h').replace(/^0/,'');
+      const els = document.querySelectorAll('#dep-time-lbl,.dep-time');
+      els.forEach(el => el.textContent = h);
+    }
+
+    // ── Annonce bannière
+    if(cfg.announce_active && cfg.announce_msg){
+      const colors = {info:'#1ABEF5',warning:'#F59E0B',success:'#22C55E',error:'#EF4444'};
+      const c = colors[cfg.announce_type] || colors.info;
+      const banner = document.createElement('div');
+      banner.id = 'admin-banner';
+      banner.style.cssText = `background:${c};color:#fff;text-align:center;padding:10px 20px;font-size:13px;font-weight:600;font-family:'Inter',sans-serif;position:sticky;top:70px;z-index:200;display:flex;align-items:center;justify-content:center;gap:12px`;
+      banner.innerHTML = `<span>${cfg.announce_msg}</span><button onclick="this.parentElement.remove()" style="background:rgba(255,255,255,.25);border:none;color:#fff;border-radius:6px;padding:3px 10px;cursor:pointer;font-size:13px">✕</button>`;
+      const nav = document.querySelector('.nav');
+      if(nav) nav.insertAdjacentElement('afterend', banner);
+    }
+
+    // ── Arrêts (mise à jour de la liste si elle est affichée)
+    if(cfg.stops && cfg.stops.length){
+      const LIEUX_admin = cfg.stops.filter(s=>s.type!=='terminus'&&s.type!=='transit');
+      if(LIEUX_admin.length && typeof LIEUX !== 'undefined'){
+        // Mettre à jour le tableau LIEUX global
+        LIEUX.splice(0, LIEUX.length, ...LIEUX_admin.map((s,i)=>({
+          id: String.fromCharCode(65+i),
+          name: s.name,
+          note: s.type === 'depart' ? 'Point de départ principal' : 'Arrêt de prise en charge',
+          time: s.time
+        })));
+      }
+    }
+
+  } catch(e){ console.log('applyAdminConfig error:', e); }
+}
+
+// Appeler au démarrage
+document.addEventListener('DOMContentLoaded', applyAdminConfig);
+// Aussi écouter les changements de localStorage (si admin ouvert dans un autre onglet)
+window.addEventListener('storage', function(e){
+  if(e.key === 'focus_site_cfg' || e.key === 'focus_cfg') applyAdminConfig();
+});
 
 </script>
 </body>
