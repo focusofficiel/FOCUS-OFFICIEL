@@ -657,7 +657,7 @@ textarea.fi{resize:vertical;min-height:100px}
         </div>
       </div>
 
-      <button class="btn-or" onclick="go('book')" style="font-family:'Inter',sans-serif">🎟 Réserver ma place — 400 F CFA</button>
+      <button class="btn-or" onclick="go('book')" style="font-family:'Inter',sans-serif">🎟 Réserver ma place</button>
     </div>
   </div>
 
@@ -923,7 +923,7 @@ textarea.fi{resize:vertical;min-height:100px}
     <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Hebdomadaire</div><div class="sub-d">Lun – Ven · 5 trajets</div></div><div class="sub-p">4 400 F</div></div><span class="sub-eco">✓ 900 F/jour</span></div>
     <div class="sub"><div class="sub-soon">Bientôt</div><div class="sub-top"><div><div class="sub-n">Mensuel</div><div class="sub-d">Lun – Ven · ~22 trajets</div></div><div class="sub-p">13 500 F</div></div><span class="sub-eco">✓ ~909 F/jour</span></div>
     <div style="margin-top:1.5rem">
-      <button class="btn-or" onclick="go('book')" style="font-family:'Inter',sans-serif">🎟 Réserver un aller simple — 400 F CFA</button>
+      <button class="btn-or" onclick="go('book')" style="font-family:'Inter',sans-serif">🎟 Réserver un aller simple</button>
     </div>
   </div>
 </div>
@@ -1038,7 +1038,7 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsI92vJcvXFAPC3MHwvn
 
 // Première date de réservation disponible : Lundi 7 juillet 2025
 // (Les réservations ouvrent 2 jours avant, donc le 5 juillet pour le 7 juillet)
-const FIRST_TRIP_DATE = new Date(2026, 5, 10); // 10 juin 2026
+const FIRST_TRIP_DATE = new Date(2026, 6, 6); // 6 juillet 2026
 
 const LIEUX = [
   { id:'A', name:'Gare TER Keur Mbaye Fall',       note:'Point de départ principal',      time:'6h15' },
@@ -1061,7 +1061,7 @@ const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
 
 let S = {
   page:'home', step:1, date:null, filePicked:false, receiptFile:null,
-  calM:new Date(2026,5,1), // Juillet 2025
+  calM:new Date(2026,6,1), // Juillet 2025
   lieu:null, dest:null, bk:{}, timerIv:null
 };
 
@@ -1083,21 +1083,30 @@ function go(p){
 // ══════════════════════════════════════════════
 function isBookingOpen(){
   try{
-    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||'{}');
-    if(cfg.platformeOuverte === false) return false;
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||localStorage.getItem('focus_cfg')||'{}');
+    if(cfg.platform_open === false) return false;
   }catch(e){}
   return true;
 }
 
 function isDateBookable(tripDate){
-  const now  = new Date();
   const trip = new Date(tripDate); trip.setHours(0,0,0,0);
+  // Pas avant le 6 juillet 2026
   if(trip < FIRST_TRIP_DATE) return false;
+  // Jours ouvrés seulement (Lun-Ven)
   const dow = trip.getDay();
   if(dow < 1 || dow > 5) return false;
   // Pas dans le passé
   const today = new Date(); today.setHours(0,0,0,0);
-  return trip >= today;
+  if(trip < today) return false;
+  // Aussi vérifier les jours d'opération depuis l'admin
+  try{
+    const cfg = JSON.parse(localStorage.getItem('focus_site_cfg')||localStorage.getItem('focus_cfg')||'{}');
+    if(cfg.operating_days && cfg.operating_days.length){
+      if(!cfg.operating_days.includes(dow)) return false;
+    }
+  }catch(e){}
+  return true;
 }
 
 
