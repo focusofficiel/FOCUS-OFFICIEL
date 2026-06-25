@@ -206,10 +206,10 @@ input[type=range]{width:100%;accent-color:var(--or);cursor:pointer}
       <div class="pd" id="d4"></div><div class="pd" id="d5"></div>
     </div>
     <div class="pp">
-      <button class="pk" onclick="pk('1')">1</button><button class="pk" onclick="pk('2')">2</button><button class="pk" onclick="pk('3')">3</button>
-      <button class="pk" onclick="pk('4')">4</button><button class="pk" onclick="pk('5')">5</button><button class="pk" onclick="pk('6')">6</button>
-      <button class="pk" onclick="pk('7')">7</button><button class="pk" onclick="pk('8')">8</button><button class="pk" onclick="pk('9')">9</button>
-      <button class="pk emp"></button><button class="pk" onclick="pk('0')">0</button><button class="pk del" onclick="pd_del()">⌫</button>
+      <button class="pk" onclick="pressKey('1')">1</button><button class="pk" onclick="pressKey('2')">2</button><button class="pk" onclick="pressKey('3')">3</button>
+      <button class="pk" onclick="pressKey('4')">4</button><button class="pk" onclick="pressKey('5')">5</button><button class="pk" onclick="pressKey('6')">6</button>
+      <button class="pk" onclick="pressKey('7')">7</button><button class="pk" onclick="pressKey('8')">8</button><button class="pk" onclick="pressKey('9')">9</button>
+      <button class="pk emp"></button><button class="pk" onclick="pressKey('0')">0</button><button class="pk del" onclick="pressDelete()">⌫</button>
     </div>
     <div class="l-att" id="l-att"></div>
   </div>
@@ -664,8 +664,8 @@ let pinEntry='', attempts=parseInt(localStorage.getItem('adm_att')||'0'), blocke
   updAtt();
 })();
 
-function pk(k){if(Date.now()<blockedUntil){showBlock();return;}if(pinEntry.length>=6)return;pinEntry+=k;updDots();if(pinEntry.length===6)setTimeout(chkPin,150);}
-function pd_del(){pinEntry=pinEntry.slice(0,-1);updDots();document.getElementById('l-err').style.display='none';}
+function pressKey(k){if(Date.now()<blockedUntil){showBlock();return;}if(pinEntry.length>=6)return;pinEntry+=k;updDots();if(pinEntry.length===6)setTimeout(chkPin,150);}
+function pressDelete(){pinEntry=pinEntry.slice(0,-1);updDots();document.getElementById('l-err').style.display='none';}
 function updDots(){for(let i=0;i<6;i++){const d=document.getElementById('d'+i);d.classList.toggle('on',i<pinEntry.length);d.classList.remove('er');}}
 function chkPin(){
   if(pinEntry===PIN){
