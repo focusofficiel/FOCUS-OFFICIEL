@@ -1183,15 +1183,21 @@ function cNext(){S.calM=new Date(S.calM.getFullYear(),S.calM.getMonth()+1,1);rCa
 function rLieu(){ buildLieux(); }
 function buildLieux(){
   const g=document.getElementById('lieu-grid');
-  g.innerHTML=LIEUX.map(l=>`
-    <button class="lieu-btn ${S.lieu===l.id?'sel':''}" onclick="selLieu('${l.id}')">
-      <div class="lieu-num">${l.id}</div>
-      <div style="flex:1;text-align:left">
-        <div class="lieu-name">${l.name}</div>
-        <div class="lieu-note">${l.note}</div>
-      </div>
-      <div class="lieu-time">${l.time}</div>
-    </button>`).join('');
+  g.innerHTML=LIEUX.map(function(l){
+    const sel=S.lieu===l.id?' sel':'';
+    return '<button class="lieu-btn'+sel+'" data-lieu-id="'+l.id+'">'
+      +'<div class="lieu-num">'+l.id+'</div>'
+      +'<div style="flex:1;text-align:left">'
+      +'<div class="lieu-name">'+l.name+'</div>'
+      +'<div class="lieu-note">'+l.note+'</div></div>'
+      +'<div class="lieu-time">'+l.time+'</div>'
+      +'</button>';
+  }).join('');
+  g.querySelectorAll('[data-lieu-id]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      selLieu(btn.getAttribute('data-lieu-id'));
+    });
+  });
 }
 
 function selLieu(id){
@@ -1350,8 +1356,6 @@ function genererBillet(){
 // ══════════════════════════════════════════════
 //  CONFIRMATION
 // ══════════════════════════════════════════════
-async 
-
 // ══════════════════════════════════════════════
 //  ANALYSE LOCALE — canvas + reconnaissance couleur/texte
 //  Détecte le bleu Wave (#1ABEF5) et le texte "500"
@@ -1585,14 +1589,22 @@ function getSiteCfg(){
 function rDest(){
   const cfg=getSiteCfg();
   const dests=(cfg.destinations&&cfg.destinations.length)?cfg.destinations:DESTINATIONS;
-  document.getElementById('dest-grid').innerHTML=dests.map(function(d){
-    return '<button class="lieu-btn '+(S.dest===d.id?'sel':'')+'" onclick="selDest(''+d.id+'')">'
+  const grid=document.getElementById('dest-grid');
+  grid.innerHTML=dests.map(function(d){
+    const sel=S.dest===d.id?' sel':'';
+    return '<button class="lieu-btn'+sel+'" data-dest-id="'+d.id+'">'
       +'<div class="lieu-num">'+d.name.slice(0,3).toUpperCase()+'</div>'
       +'<div style="flex:1;text-align:left"><div class="lieu-name">'+d.name+'</div>'
       +'<div class="lieu-note">'+d.note+'</div></div>'
       +'<div style="font-weight:800;color:var(--or);font-size:15px;white-space:nowrap">'+d.prix+' F</div>'
       +'</button>';
   }).join('');
+  // Attacher les événements après rendu HTML
+  grid.querySelectorAll('[data-dest-id]').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      selDest(btn.getAttribute('data-dest-id'));
+    });
+  });
 }
 
 function selDest(id){
