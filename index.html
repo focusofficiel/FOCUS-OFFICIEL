@@ -1110,12 +1110,12 @@ function checkBookingOpen(){
   const closed = document.getElementById('booking-closed');
   const calWrap= document.getElementById('cal-wrap');
   if(!isBookingOpen()){
-    closed.style.display='block';
-    calWrap.style.display='none';
+    if(closed) closed.style.display='block';
+    if(calWrap) calWrap.style.display='none';
     document.getElementById('btn1').disabled=true;
   } else {
-    closed.style.display='none';
-    calWrap.style.display='block';
+    if(closed) closed.style.display='none';
+    if(calWrap) calWrap.style.display='block';
   }
 }
 
@@ -1180,6 +1180,7 @@ function cNext(){S.calM=new Date(S.calM.getFullYear(),S.calM.getMonth()+1,1);rCa
 // ══════════════════════════════════════════════
 //  LIEUX DE PRISE EN CHARGE
 // ══════════════════════════════════════════════
+function rLieu(){ buildLieux(); }
 function buildLieux(){
   const g=document.getElementById('lieu-grid');
   g.innerHTML=LIEUX.map(l=>`
@@ -1318,22 +1319,10 @@ function genererBillet(){
   if(!S.filePicked){
     const er=document.getElementById('up-err');
     er.style.display='block';
-    er.textContent='⚠️ Vous devez téléverser votre reçu Wave avant de générer votre billet.';
+    er.textContent='⚠️ Téléversez votre reçu Wave pour générer votre billet.';
     return;
   }
-  // Analyser le reçu et générer le billet
-  confirmReceipt();
-}
-
-// ══════════════════════════════════════════════
-//  TIMER
-// ══════════════════════════════════════════════
-function startTimer(){
-  // Plus de timer nécessaire
-}
-
-function genererBillet(){
-  sendSheet({ action:'update_status', reference:S.bk.ref, statut:'Payé Wave' });
+  sendSheet({ action:'update_status', reference:S.bk.ref, statut:'Payé Wave — Reçu joint' });
   showBillet(S.bk);
 }
 
