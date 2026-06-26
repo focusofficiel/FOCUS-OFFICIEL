@@ -1034,7 +1034,7 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsI92vJcvXFAPC3MHwvn
 
 // Première date de réservation disponible : Lundi 7 juillet 2025
 // (Les réservations ouvrent 2 jours avant, donc le 5 juillet pour le 7 juillet)
-const FIRST_TRIP_DATE = new Date(2026, 6, 6); // 6 juillet 2026
+const FIRST_TRIP_DATE = new Date(2026, 0, 1); // Pas de blocage — toutes dates futures OK
 
 const LIEUX = [
   { id:'A', name:'Gare TER Keur Mbaye Fall',       note:'Point de départ principal',      time:'6h15' },
@@ -1057,7 +1057,7 @@ const RATINGS = { global:0, ponctualite:0, confort:0, plateforme:0, prix:0 };
 
 let S = {
   page:'home', step:1, date:null, filePicked:false, receiptFile:null,
-  calM:new Date(2026,6,1), // Juillet 2025
+  calM:new Date(2026,5,1), // Juin 2026
   lieu:null, dest:null, bk:{}, timerIv:null
 };
 
@@ -1087,8 +1087,6 @@ function isBookingOpen(){
 
 function isDateBookable(tripDate){
   const trip = new Date(tripDate); trip.setHours(0,0,0,0);
-  // Pas avant le 6 juillet 2026
-  if(trip < FIRST_TRIP_DATE) return false;
   // Jours ouvrés seulement (Lun-Ven)
   const dow = trip.getDay();
   if(dow < 1 || dow > 5) return false;
