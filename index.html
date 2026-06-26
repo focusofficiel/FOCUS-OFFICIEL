@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>FOCUS Transport — Dakar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --or:#FFC000;--or-l:#FFF8E1;--or-b:#FFD54F;
+  --noir:#1A1A1A;--gris:#F5F5F5;--gris2:#E8E8E8;--gris3:#999;
+  --vert:#1B8A4C;--vert-l:#E8F5EE;--vert-b:#4CAF7D;
+  --rouge:#C0392B;--rouge-l:#FDECEA;--bord:#E0E0E0;--w:#fff;
+}
+body{font-family:'Inter',sans-serif;background:var(--w);color:var(--noir);min-height:100vh;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none}
+input,textarea{font-family:inherit}
+a{color:inherit;text-decoration:none}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:200;background:var(--w);border-bottom:2px solid var(--or);display:flex;align-items:center;justify-content:space-between;padding:0 1.25rem;height:60px}
+.nav-logo{font-weight:800;font-size:18px;cursor:pointer;color:var(--noir)}
+.nav-logo span{color:var(--or)}
+.nav-links{display:flex;gap:4px}
+.nb{background:none;color:var(--gris3);font-size:12px;padding:6px 10px;border-radius:8px;font-weight:600;transition:.15s}
+.nb.on{background:var(--or);color:var(--noir)}
+
+/* PAGES */
+.pg{display:none}.pg.on{display:block}
+
+/* HERO */
+.hero{background:linear-gradient(135deg,#1A1A1A,#2C2C2C);color:#fff;padding:2.5rem 1.25rem}
+.hero h1{font-size:28px;font-weight:800;line-height:1.2;margin-bottom:1rem}
+.hero h1 span{color:var(--or)}
+.hero p{font-size:14px;color:rgba(255,255,255,.7);line-height:1.7;margin-bottom:1.5rem}
+.route-box{background:rgba(255,255,255,.08);border-radius:14px;padding:1rem;margin-bottom:1.5rem}
+.route-title{font-size:11px;font-weight:700;color:var(--or);text-transform:uppercase;letter-spacing:1px;margin-bottom:.75rem}
+.rs{display:flex;align-items:center;gap:10px;padding:6px 0;font-size:13px}
+.rs-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--or);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--or);flex-shrink:0}
+.rs-dot.a{background:var(--or);color:#111}
+.rs-name{font-weight:600;flex:1}
+.rs-time{color:var(--or);font-size:12px;font-weight:700}
+
+/* TARIFS */
+.section{padding:2rem 1.25rem}
+.section.alt{background:var(--gris)}
+.sh2{font-size:20px;font-weight:800;margin-bottom:.25rem}
+.ss{font-size:13px;color:var(--gris3);margin-bottom:1.25rem}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tc{background:var(--w);border:2px solid var(--bord);border-radius:14px;padding:16px 12px;position:relative}
+.tc.star{border-color:var(--or);background:var(--or-l)}
+.tc.soon{opacity:.5}
+.tc-badge{font-size:10px;font-weight:700;background:var(--or);color:#111;border-radius:100px;padding:2px 8px;margin-bottom:8px;display:inline-block}
+.tc-soon-tag{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;background:var(--gris2);color:var(--gris3);border-radius:100px;padding:2px 7px}
+.tc-l{font-size:11px;color:var(--gris3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.tc-n{font-size:11px;color:var(--gris3);margin-top:4px}
+
+/* BTN */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;background:var(--or);color:var(--noir);border-radius:12px;font-size:16px;font-weight:700;transition:.15s}
+.btn:hover{background:var(--or-b)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-ghost{background:none;color:var(--gris3);font-size:14px;padding:10px;width:100%;text-align:center}
+.btn-out{background:transparent;border:2px solid var(--bord);color:var(--noir);border-radius:12px;font-size:15px;font-weight:600;padding:14px;width:100%;text-align:center;display:flex;align-items:center;justify-content:center}
+
+/* STEPS */
+.steps{display:flex;background:var(--w);border-bottom:2px solid var(--bord);overflow-x:auto}
+.stab{flex:1;min-width:60px;padding:12px 4px;text-align:center;font-size:10px;color:var(--gris3);border-bottom:2px solid transparent;margin-bottom:-2px;font-weight:600;text-transform:uppercase;letter-spacing:.3px}
+.stab.on{color:var(--or);border-bottom-color:var(--or)}
+.stab.done{color:var(--vert);border-bottom-color:var(--vert)}
+.sc{padding:1.5rem 1.25rem;max-width:520px;margin:0 auto}
+.ft{font-size:22px;font-weight:800;margin-bottom:.25rem}
+.fs{font-size:13px;color:var(--gris3);margin-bottom:1.25rem}
+
+/* CALENDRIER */
+.cal{background:var(--w);border:2px solid var(--bord);border-radius:14px;padding:14px;margin-bottom:1rem}
+.cal-nav{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cal-nb{background:var(--gris);border:none;border-radius:8px;font-size:16px;padding:4px 12px;cursor:pointer}
+.cal-t{font-weight:800;font-size:15px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal-h{font-size:9px;text-align:center;color:var(--gris3);padding:4px 0;font-weight:700}
+.cc{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;border:1.5px solid transparent;font-weight:500;cursor:pointer;background:none;color:var(--noir)}
+.cc.av:hover{background:var(--or-l);border-color:var(--or)}
+.cc.sel{background:var(--or);color:var(--noir);font-weight:700}
+.cc.off{color:var(--gris2);cursor:not-allowed}
+.date-chip{display:flex;align-items:center;gap:8px;background:var(--vert-l);border:1px solid var(--vert-b);border-radius:10px;padding:10px 14px;font-size:13px;color:var(--vert);margin-bottom:1rem}
+
+/* LIEUX / DESTINATIONS */
+.choix-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:1rem}
+.choix-btn{display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:2px solid var(--bord);background:var(--w);cursor:pointer;text-align:left;transition:.15s}
+.choix-btn:hover{border-color:var(--or);background:var(--or-l)}
+.choix-btn.sel{border-color:var(--or);background:var(--or-l)}
+.choix-ico{width:36px;height:36px;border-radius:50%;background:var(--gris2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.choix-btn.sel .choix-ico{background:var(--or);color:#111}
+.choix-name{font-size:14px;font-weight:600}
+.choix-note{font-size:12px;color:var(--gris3);margin-top:2px}
+.choix-prix{font-weight:800;color:var(--or);font-size:15px;margin-left:auto;white-space:nowrap}
+.aerr{background:var(--rouge-l);border:1.5px solid rgba(192,57,43,.2);color:var(--rouge);border-radius:10px;padding:11px 14px;font-size:13px;margin-bottom:1rem;display:none}
+
+/* FORM */
+.fg{margin-bottom:12px}
+.fl{display:block;font-size:11px;font-weight:700;color:var(--gris3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.5px}
+.fi{width:100%;padding:13px 14px;background:var(--w);border:2px solid var(--bord);border-radius:10px;font-size:15px;color:var(--noir);outline:none;transition:.15s}
+.fi:focus{border-color:var(--or);background:var(--or-l)}
+.fi.err{border-color:var(--rouge)}
+.ferr{font-size:11px;color:var(--rouge);margin-top:4px}
+.fg2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* RECAP */
+.rc{background:var(--w);border:2px solid var(--bord);border-radius:14px;overflow:hidden;margin-bottom:1rem}
+.rr{display:flex;justify-content:space-between;padding:11px 16px;border-bottom:1px solid var(--bord);font-size:14px;gap:12px}
+.rr:last-child{border:none}
+.rr .k{color:var(--gris3);font-size:13px;flex-shrink:0}
+.rr .v{font-weight:600;text-align:right}
+.rt{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--or-l);border-top:2px solid var(--or)}
+.ra{font-size:26px;font-weight:800}
+
+/* PAIEMENT */
+.pay-page{padding:1.5rem 1.25rem;max-width:520px;margin:0 auto}
+.pay-card{background:var(--w);border:2px solid var(--bord);border-radius:18px;padding:1.75rem 1.5rem;text-align:center;margin-bottom:1.25rem}
+.wave-ico{width:72px;height:72px;background:#1ABEF5;border-radius:20px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:30px;color:#fff;margin:0 auto 1rem}
+.pay-amount{font-size:40px;font-weight:800;margin-bottom:4px}
+.pay-ref{font-family:monospace;font-size:12px;color:var(--gris3);margin-bottom:1.25rem}
+.btn-wave{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:18px;background:#1ABEF5;color:#fff;border-radius:12px;font-size:17px;font-weight:800;border:none;cursor:pointer;text-decoration:none}
+.upload-box{background:var(--gris);border:2px solid var(--bord);border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.upzone{border:2px dashed var(--bord);border-radius:10px;padding:1.5rem;text-align:center;cursor:pointer;position:relative;background:var(--w)}
+.upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* BILLET */
+.conf-hero{background:linear-gradient(135deg,var(--vert),#145A32);color:#fff;padding:2.5rem 1.25rem;text-align:center}
+.chk{width:72px;height:72px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:36px;margin:0 auto 1rem}
+.cref{font-family:monospace;font-size:16px;font-weight:800;color:var(--or);margin-bottom:8px}
+.bwrap{margin:1.25rem}
+.billet{background:#fff;border:2px solid var(--bord);border-radius:18px;overflow:hidden}
+.bh{background:var(--or);padding:14px 18px;display:flex;justify-content:space-between;align-items:center}
+.bh-name{font-weight:800;font-size:15px;color:#111}
+.bh-ok{background:#111;color:var(--vert-b);font-size:11px;font-weight:700;padding:4px 10px;border-radius:100px}
+.br{display:flex;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--bord);font-size:14px;gap:12px}
+.br:last-child{border:none}
+.br .k{color:var(--gris3);font-size:13px}
+.br .v{font-weight:600;text-align:right}
+.br .v.gold{color:var(--or)}
+.qr-sec{text-align:center;padding:18px;border-top:2px dashed var(--bord);background:var(--gris)}
+
+/* AVIS */
+.avis-wrap{padding:2rem 1.25rem;max-width:520px;margin:0 auto}
+.stars{display:flex;gap:8px;margin-bottom:1rem}
+.star{font-size:30px;cursor:pointer;color:var(--gris2)}
+.star.on{color:var(--or)}
+
+/* ABONNEMENTS */
+.abn-wrap{padding:2rem 1.25rem;max-width:520px;margin:0 auto}
+
+/* WA */
+.wa-float{position:fixed;bottom:24px;right:20px;z-index:300}
+.wa-btn{width:54px;height:54px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;cursor:pointer;border:none;box-shadow:0 4px 14px rgba(37,211,102,.4)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo" onclick="go('home')">FOCUS <span>Transport</span></div>
+  <div class="nav-links">
+    <button class="nb on" onclick="go('home')">Accueil</button>
+    <button class="nb" onclick="go('book')">Réserver</button>
+    <button class="nb" onclick="go('abn')">Abonnements</button>
+    <button class="nb" onclick="go('avis')">Avis</button>
+  </div>
+</nav>
+
+<!-- WHATSAPP -->
+<div class="wa-float">
+  <a href="https://wa.me/221778188023" target="_blank" class="wa-btn">💬</a>
+</div>
+
+<!-- ══ ACCUEIL ══ -->
+<div class="pg on" id="pg-home">
+  <div class="hero">
+    <h1>Votre trajet Mbao→<span>Colobane</span> sans stress</h1>
+    <p>Réservez votre place, payez par Wave, montez à l'heure. Départ garanti à 6h15 du lundi au vendredi.</p>
+    <div class="route-box">
+      <div class="route-title">📍 Itinéraire · Lundi au Vendredi</div>
+      <div class="rs"><div class="rs-dot a">A</div><div class="rs-name">Gare TER Keur Mbaye Fall</div><div class="rs-time">6h15</div></div>
+      <div class="rs"><div class="rs-dot">B</div><div class="rs-name">Rond Point Grand Mbao</div><div class="rs-time">6h18</div></div>
+      <div class="rs"><div class="rs-dot">C</div><div class="rs-name">Diouma Dji</div><div class="rs-time">6h22</div></div>
+      <div class="rs"><div class="rs-dot">D</div><div class="rs-name">Arrêt Car</div><div class="rs-time">6h24</div></div>
+      <div class="rs"><div class="rs-dot">E</div><div class="rs-name">Croisement Keur Massar</div><div class="rs-time">6h28</div></div>
+      <div class="rs"><div class="rs-dot a">→</div><div class="rs-name">Colobane / Pompier / Petersen</div><div class="rs-time">avant 7h30</div></div>
+    </div>
+    <button class="btn" onclick="go('book')">🎟 Réserver ma place</button>
+  </div>
+
+  <div class="section alt">
+    <div class="sh2">Nos tarifs</div>
+    <div class="ss">Aller simple · Prix selon destination choisie</div>
+    <div class="tg">
+      <div class="tc star">
+        <div class="tc-badge">Disponible</div>
+        <div class="tc-l">Aller simple</div>
+        <div style="font-size:13px;margin:6px 0;line-height:1.8">
+          Colobane : <strong>400 F</strong><br>
+          Pompier : <strong>450 F</strong><br>
+          Petersen : <strong>500 F</strong>
+        </div>
+        <div class="tc-n">Départ 6h15</div>
+      </div>
+      <div class="tc soon">
+        <div class="tc-soon-tag">Bientôt</div>
+        <div class="tc-l">Abonnements</div>
+        <div style="font-size:13px;color:var(--gris3);margin:6px 0">Prix à venir</div>
+        <div class="tc-n">Hebdo / Mensuel</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:1.5rem 1.25rem;display:flex;flex-direction:column;gap:10px">
+    <button class="btn" onclick="go('book')">🎟 Réserver un billet</button>
+  </div>
+</div>
+
+<!-- ══ RÉSERVER ══ -->
+<div class="pg" id="pg-book">
+  <div class="steps">
+    <div class="stab on" id="st1">1. Date</div>
+    <div class="stab" id="st2">2. Trajet</div>
+    <div class="stab" id="st3">3. Infos</div>
+    <div class="stab" id="st4">4. Récap</div>
+    <div class="stab" id="st5">5. Paiement</div>
+    <div class="stab" id="st6">6. Billet</div>
+  </div>
+
+  <!-- ÉTAPE 1 : DATE -->
+  <div id="bs1" class="sc">
+    <div class="ft">Choisissez votre date</div>
+    <div class="fs">Lundi au vendredi uniquement</div>
+    <div class="cal">
+      <div class="cal-nav">
+        <button class="cal-nb" onclick="cPrev()">‹</button>
+        <span class="cal-t" id="cal-t"></span>
+        <button class="cal-nb" onclick="cNext()">›</button>
+      </div>
+      <div class="cal-grid" id="cal-h"></div>
+      <div class="cal-grid" id="cal-g"></div>
+    </div>
+    <div id="d-ok" style="display:none" class="date-chip">✓ <span id="d-ok-t"></span></div>
+    <button class="btn" id="btn1" onclick="aller(2)" disabled>Continuer →</button>
+  </div>
+
+  <!-- ÉTAPE 2 : LIEU + DESTINATION -->
+  <div id="bs2" class="sc" style="display:none">
+    <div class="ft">Trajet</div>
+    <div class="fs">Choisissez votre arrêt de départ et votre destination</div>
+
+    <div style="font-weight:700;font-size:14px;margin-bottom:8px">📍 Lieu de prise en charge</div>
+    <div class="choix-grid" id="lieu-grid"></div>
+    <div class="aerr" id="lieu-err">Veuillez choisir votre arrêt de départ.</div>
+
+    <div style="font-weight:700;font-size:14px;margin:14px 0 8px">🏁 Destination</div>
+    <div class="choix-grid" id="dest-grid"></div>
+    <div class="aerr" id="dest-err">Veuillez choisir votre destination.</div>
+
+    <button class="btn" onclick="aller(3)">Continuer →</button>
+    <button class="btn-ghost" onclick="aller(1)">← Retour</button>
+  </div>
+
+  <!-- ÉTAPE 3 : INFOS -->
+  <div id="bs3" class="sc" style="display:none">
+    <div class="ft">Vos informations</div>
+    <div class="fs">Pour l'émission de votre billet</div>
+    <div class="fg2">
+      <div class="fg"><label class="fl">Prénom</label><input class="fi" id="f-p" placeholder="Moussa"><div class="ferr" id="ep"></div></div>
+      <div class="fg"><label class="fl">Nom</label><input class="fi" id="f-n" placeholder="Diallo"><div class="ferr" id="en"></div></div>
+    </div>
+    <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="f-t" type="tel" placeholder="+221 77 123 45 67"><div class="ferr" id="et"></div></div>
+    <button class="btn" onclick="aller(4)">Continuer →</button>
+    <button class="btn-ghost" onclick="aller(2)">← Retour</button>
+  </div>
+
+  <!-- ÉTAPE 4 : RÉCAP -->
+  <div id="bs4" class="sc" style="display:none">
+    <div class="ft">Récapitulatif</div>
+    <div class="fs">Vérifiez avant de payer</div>
+    <div class="rc">
+      <div class="rr"><span class="k">Date</span><span class="v" id="r-d">—</span></div>
+      <div class="rr"><span class="k">Départ</span><span class="v" id="r-l">—</span></div>
+      <div class="rr"><span class="k">Destination</span><span class="v" id="r-dest">—</span></div>
+      <div class="rr"><span class="k">Passager</span><span class="v" id="r-p">—</span></div>
+      <div class="rr"><span class="k">Téléphone</span><span class="v" id="r-t">—</span></div>
+    </div>
+    <div class="rt"><span style="color:var(--gris3)">Total à payer</span><span class="ra" id="r-montant">—</span></div>
+    <div style="margin-top:1rem">
+      <button class="btn" onclick="payer()">💳 Payer avec Wave →</button>
+      <button class="btn-ghost" onclick="aller(3)">← Retour</button>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 5 : PAIEMENT -->
+  <div id="bs5" style="display:none">
+    <div class="pay-page">
+      <div class="pay-card">
+        <div class="wave-ico">W</div>
+        <div style="font-size:13px;color:var(--gris3);margin-bottom:6px">FOCUS OFFICIEL</div>
+        <div class="pay-amount" id="pay-montant">—</div>
+        <div style="font-size:13px;color:var(--gris3);margin-bottom:4px" id="pay-dest-lbl"></div>
+        <div class="pay-ref" id="pay-ref">—</div>
+        <a id="wave-btn" href="#" target="_blank" class="btn-wave" onclick="apresWave()">Payer avec Wave →</a>
+        <p style="font-size:12px;color:var(--gris3);margin-top:10px;line-height:1.6">Après le paiement, revenez ici et téléversez votre reçu Wave.</p>
+      </div>
+
+      <div id="zone-recu" style="display:none">
+        <div class="upload-box">
+          <div style="font-size:15px;font-weight:700;margin-bottom:.5rem">📎 Votre reçu Wave</div>
+          <div style="font-size:13px;color:var(--gris3);margin-bottom:.75rem">Téléversez la capture d'écran de votre reçu pour générer votre billet.</div>
+          <div class="upzone" id="upzone">
+            <input type="file" id="up-file" accept="image/*,.pdf,application/pdf" onchange="fichierChoisi(event)">
+            <div style="font-size:32px;margin-bottom:.5rem">🧾</div>
+            <div style="font-size:14px;font-weight:600">Appuyez pour choisir le reçu</div>
+            <div style="font-size:12px;color:var(--gris3);margin-top:4px">JPG ou PNG</div>
+          </div>
+          <div id="prev-recu" style="display:none;margin-top:.75rem;background:var(--vert-l);border:1px solid var(--vert-b);border-radius:10px;padding:12px;display:flex;align-items:center;gap:10px">
+            <span style="font-size:22px">🖼️</span>
+            <div style="flex:1"><div style="font-size:13px;font-weight:600" id="prev-nom">—</div></div>
+            <button onclick="supprimerRecu()" style="background:none;border:none;color:var(--gris3);font-size:18px;cursor:pointer">✕</button>
+          </div>
+        </div>
+        <button class="btn" id="btn-generer" onclick="genererBillet()" disabled style="opacity:.45">🎫 Générer mon billet</button>
+        <p style="text-align:center;font-size:12px;color:var(--rouge);margin-top:8px" id="hint-generer">Téléversez d'abord votre reçu</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ÉTAPE 6 : BILLET -->
+  <div id="bs6" style="display:none"></div>
+</div>
+
+<!-- ══ ABONNEMENTS ══ -->
+<div class="pg" id="pg-abn">
+  <div class="abn-wrap">
+    <div class="ft">Abonnements</div>
+    <div class="fs" style="margin-bottom:1.25rem">Bientôt disponibles</div>
+    <div style="background:var(--or-l);border:2px solid var(--or-b);border-radius:14px;padding:1.25rem;margin-bottom:1.5rem">
+      <div style="font-size:16px;font-weight:700;margin-bottom:6px">🚧 En cours de déploiement</div>
+      <div style="font-size:13px;color:var(--gris3);line-height:1.6">Les abonnements hebdomadaires et mensuels arrivent prochainement. En attendant, réservez à l'unité.</div>
+    </div>
+    <button class="btn" onclick="go('book')">🎟 Réserver un aller simple</button>
+  </div>
+</div>
+
+<!-- ══ AVIS ══ -->
+<div class="pg" id="pg-avis">
+  <div class="avis-wrap">
+    <div class="ft">Votre avis</div>
+    <div class="fs" style="margin-bottom:1.25rem">Aidez-nous à améliorer FOCUS Transport</div>
+    <div id="avis-form">
+      <div style="background:var(--gris);border-radius:14px;padding:1.25rem;margin-bottom:1rem">
+        <div style="font-size:15px;font-weight:700;margin-bottom:.75rem">Note générale</div>
+        <div class="stars" id="stars">
+          <span class="star" onclick="noter(1)">★</span>
+          <span class="star" onclick="noter(2)">★</span>
+          <span class="star" onclick="noter(3)">★</span>
+          <span class="star" onclick="noter(4)">★</span>
+          <span class="star" onclick="noter(5)">★</span>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Commentaire</label><textarea class="fi" id="avis-txt" rows="4" placeholder="Votre expérience…" style="resize:vertical;min-height:90px"></textarea></div>
+      <div class="fg2">
+        <div class="fg"><label class="fl">Prénom</label><input class="fi" id="avis-p" placeholder="Moussa"></div>
+        <div class="fg"><label class="fl">Téléphone</label><input class="fi" id="avis-t" placeholder="+221 77..."></div>
+      </div>
+      <div class="aerr" id="avis-err" style="display:none">Donnez une note avant d'envoyer.</div>
+      <button class="btn" onclick="envoyerAvis()">⭐ Envoyer mon avis</button>
+    </div>
+    <div id="avis-ok" style="display:none;text-align:center;padding:2rem">
+      <div style="font-size:56px;margin-bottom:1rem">🙏</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:.5rem">Merci !</div>
+      <div style="font-size:14px;color:var(--gris3)">Votre avis nous aide à améliorer le service.</div>
+      <button class="btn" onclick="go('home')" style="margin-top:1.5rem">Retour à l'accueil</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════
+// CONFIG
+// ══════════════════════
+const WAVE_URL  = 'https://pay.wave.com/m/M_sn_QhM0881SvAx5/c/sn/';
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzsI92vJcvXFAPC3MHwvnsPIhZO8I6l4svxBC2CMs2-qwywFtnz9My72nGKHlq3lX07tQ/exec';
+
+const LIEUX = [
+  { id:'A', name:'Gare TER Keur Mbaye Fall',  note:'Départ principal',   time:'6h15' },
+  { id:'B', name:'Rond Point Grand Mbao',      note:'Arrêt',              time:'6h18' },
+  { id:'C', name:'Diouma Dji',                 note:'Arrêt',              time:'6h22' },
+  { id:'D', name:'Arrêt Car',                  note:'Arrêt',              time:'6h24' },
+  { id:'E', name:'Croisement Keur Massar',     note:'Dernier arrêt',      time:'6h28' },
+];
+
+const DESTS = [
+  { id:'COL', name:'Colobane', note:'Terminus principal',      prix:400 },
+  { id:'POM', name:'Pompier',  note:'Arrêt Pompier / Medina',  prix:450 },
+  { id:'PET', name:'Petersen', note:'Arrêt Petersen',          prix:500 },
+];
+
+const MOIS  = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const JOURS = ['Di','Lu','Ma','Me','Je','Ve','Sa'];
+
+// ÉTAT
+let S = {
+  step: 1,
+  date: null,
+  lieu: null,
+  dest: null,
+  bk:   {},
+  recuOk: false,
+  calM: new Date()
+};
+let noteAvis = 0;
+
+// ══════════════════════
+// NAVIGATION PAGES
+// ══════════════════════
+function go(p) {
+  document.querySelectorAll('.pg').forEach(x => x.classList.remove('on'));
+  document.getElementById('pg-' + p).classList.add('on');
+  ['home','book','abn','avis'].forEach((n,i) => {
+    document.querySelectorAll('.nb')[i].classList.toggle('on', n === p);
+  });
+  if (p === 'book') initBook();
+  window.scrollTo(0, 0);
+}
+
+function initBook() {
+  S.date = null; S.lieu = null; S.dest = null; S.recuOk = false;
+  afficherEtape(1);
+  rCal();
+}
+
+// ══════════════════════
+// NAVIGATION ÉTAPES
+// ══════════════════════
+function afficherEtape(n) {
+  S.step = n;
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('bs' + i);
+    if (el) el.style.display = i === n ? (i === 5 ? 'block' : 'block') : 'none';
+    const t = document.getElementById('st' + i);
+    if (t) t.className = 'stab' + (i === n ? ' on' : i < n ? ' done' : '');
+  }
+  if (n === 2) { construireLieux(); construireDests(); }
+  window.scrollTo(0, 0);
+}
+
+function aller(n) {
+  // Validations
+  if (n === 2 && !S.date) return;
+  if (n === 3) {
+    if (!S.lieu) { document.getElementById('lieu-err').style.display = 'block'; return; }
+    if (!S.dest) { document.getElementById('dest-err').style.display = 'block'; return; }
+  }
+  if (n === 4 && !validerInfos()) return;
+  if (n === 4) remplirRecap();
+  afficherEtape(n);
+}
+
+// ══════════════════════
+// CALENDRIER
+// ══════════════════════
+function rCal() {
+  const m = S.calM;
+  document.getElementById('cal-t').textContent = MOIS[m.getMonth()] + ' ' + m.getFullYear();
+  document.getElementById('cal-h').innerHTML = JOURS.map(d => '<div class="cal-h">' + d + '</div>').join('');
+  const premier = new Date(m.getFullYear(), m.getMonth(), 1).getDay();
+  const total   = new Date(m.getFullYear(), m.getMonth() + 1, 0).getDate();
+  let h = '';
+  for (let i = 0; i < premier; i++) h += '<div></div>';
+  for (let d = 1; d <= total; d++) {
+    const dd  = new Date(m.getFullYear(), m.getMonth(), d);
+    const dow = dd.getDay();
+    const auj = new Date(); auj.setHours(0,0,0,0);
+    const dispo = dow >= 1 && dow <= 5 && dd >= auj;
+    const sel   = S.date && dd.toDateString() === S.date.toDateString();
+    let cls = 'cc';
+    if (sel) cls += ' sel';
+    else if (dispo) cls += ' av';
+    else cls += ' off';
+    if (dispo) {
+      h += '<button class="' + cls + '" onclick="choisirDate(' + m.getFullYear() + ',' + m.getMonth() + ',' + d + ')">' + d + '</button>';
+    } else {
+      h += '<button class="' + cls + '" disabled>' + d + '</button>';
+    }
+  }
+  document.getElementById('cal-g').innerHTML = h;
+}
+
+function choisirDate(y, mo, d) {
+  S.date = new Date(y, mo, d);
+  const txt = S.date.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+  document.getElementById('d-ok').style.display = 'flex';
+  document.getElementById('d-ok-t').textContent = txt.charAt(0).toUpperCase() + txt.slice(1);
+  document.getElementById('btn1').disabled = false;
+  rCal();
+}
+
+function cPrev() { S.calM = new Date(S.calM.getFullYear(), S.calM.getMonth() - 1, 1); rCal(); }
+function cNext() { S.calM = new Date(S.calM.getFullYear(), S.calM.getMonth() + 1, 1); rCal(); }
+
+// ══════════════════════
+// LIEUX & DESTINATIONS
+// ══════════════════════
+function construireLieux() {
+  document.getElementById('lieu-grid').innerHTML = LIEUX.map(function(l) {
+    const sel = S.lieu === l.id ? ' sel' : '';
+    return '<button class="choix-btn' + sel + '" data-id="' + l.id + '" data-type="lieu">' +
+      '<div class="choix-ico">' + l.id + '</div>' +
+      '<div><div class="choix-name">' + l.name + '</div><div class="choix-note">' + l.note + ' · ' + l.time + '</div></div>' +
+      '</button>';
+  }).join('');
+  document.querySelectorAll('#lieu-grid [data-type="lieu"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      S.lieu = btn.getAttribute('data-id');
+      document.getElementById('lieu-err').style.display = 'none';
+      construireLieux();
+    });
+  });
+}
+
+function construireDests() {
+  document.getElementById('dest-grid').innerHTML = DESTS.map(function(d) {
+    const sel = S.dest === d.id ? ' sel' : '';
+    return '<button class="choix-btn' + sel + '" data-id="' + d.id + '" data-type="dest">' +
+      '<div class="choix-ico">' + d.name.slice(0,3).toUpperCase() + '</div>' +
+      '<div><div class="choix-name">' + d.name + '</div><div class="choix-note">' + d.note + '</div></div>' +
+      '<div class="choix-prix">' + d.prix + ' F</div>' +
+      '</button>';
+  }).join('');
+  document.querySelectorAll('#dest-grid [data-type="dest"]').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      S.dest = btn.getAttribute('data-id');
+      document.getElementById('dest-err').style.display = 'none';
+      construireDests();
+    });
+  });
+}
+
+// ══════════════════════
+// VALIDATION FORMULAIRE
+// ══════════════════════
+function validerInfos() {
+  let ok = true;
+  const champs = [
+    ['f-p','ep', function(v){return v.trim().length >= 2;}, 'Prénom requis'],
+    ['f-n','en', function(v){return v.trim().length >= 2;}, 'Nom requis'],
+    ['f-t','et', function(v){return /^(\+221)?[7][0-9]{8}$/.test(v.replace(/[\s\-(). ]/g,''));}, 'Format : +221 7X XXX XX XX'],
+  ];
+  champs.forEach(function(c) {
+    const val = document.getElementById(c[0]).value;
+    const err = document.getElementById(c[1]);
+    if (!c[2](val)) { err.textContent = c[3]; ok = false; }
+    else { err.textContent = ''; }
+  });
+  return ok;
+}
+
+// ══════════════════════
+// RÉCAP
+// ══════════════════════
+function remplirRecap() {
+  const ds   = S.date.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+  const lieu = LIEUX.find(function(l){return l.id === S.lieu;});
+  const dest = DESTS.find(function(d){return d.id === S.dest;});
+  document.getElementById('r-d').textContent    = ds.charAt(0).toUpperCase() + ds.slice(1);
+  document.getElementById('r-l').textContent    = lieu ? lieu.name + ' · ' + lieu.time : '—';
+  document.getElementById('r-dest').textContent = dest ? dest.name : '—';
+  document.getElementById('r-p').textContent    = document.getElementById('f-p').value + ' ' + document.getElementById('f-n').value;
+  document.getElementById('r-t').textContent    = document.getElementById('f-t').value;
+  document.getElementById('r-montant').textContent = dest ? dest.prix.toLocaleString('fr-FR') + ' F CFA' : '—';
+}
+
+// ══════════════════════
+// PAIEMENT
+// ══════════════════════
+function genRef() {
+  const d = new Date();
+  return 'FOCUS-BK-' + d.getFullYear() + String(d.getMonth()+1).padStart(2,'0') + String(d.getDate()).padStart(2,'0') + '-' + Math.random().toString(36).substring(2,6).toUpperCase();
+}
+
+function payer() {
+  const lieu = LIEUX.find(function(l){return l.id === S.lieu;});
+  const dest = DESTS.find(function(d){return d.id === S.dest;});
+  const ref  = genRef();
+  const prenom = document.getElementById('f-p').value.trim();
+  const nom    = document.getElementById('f-n').value.trim();
+  const tel    = document.getElementById('f-t').value.trim();
+  const ds     = S.date.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  S.bk = { ref, prenom, nom, tel, lieu: lieu.name, lieuTime: lieu.time, dest: dest.name, montant: dest.prix, ds };
+
+  // Afficher la page paiement
+  document.getElementById('pay-montant').textContent   = dest.prix.toLocaleString('fr-FR') + ' F CFA';
+  document.getElementById('pay-dest-lbl').textContent  = '→ ' + dest.name;
+  document.getElementById('pay-ref').textContent       = 'Réf : ' + ref;
+
+  const note = encodeURIComponent('FOCUS ' + dest.name + ' ' + ds);
+  document.getElementById('wave-btn').href = WAVE_URL + '?amount=' + dest.prix + '&client_reference=' + ref + '&note=' + note;
+
+  envoyerSheet({ action:'booking', reference:ref, prenom, nom, tel, lieu:lieu.name, dest:dest.name, date:ds, montant:dest.prix, statut:'En attente de paiement', timestamp:new Date().toISOString() });
+
+  afficherEtape(5);
+}
+
+function apresWave() {
+  setTimeout(function() {
+    document.getElementById('zone-recu').style.display = 'block';
+  }, 1000);
+}
+
+// ══════════════════════
+// UPLOAD REÇU
+// ══════════════════════
+function fichierChoisi(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const ok = f.type.startsWith('image/') || f.type === 'application/pdf' || f.name.endsWith('.pdf');
+  if (!ok) { alert('Format non supporté. Utilisez une image ou un PDF.'); return; }
+  document.getElementById('prev-nom').textContent = f.name;
+  document.getElementById('prev-recu').style.display = 'flex';
+  S.recuOk = true;
+  const btn = document.getElementById('btn-generer');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  document.getElementById('hint-generer').textContent = '✓ Reçu ajouté — cliquez pour générer votre billet';
+  document.getElementById('hint-generer').style.color = 'var(--vert)';
+}
+
+function supprimerRecu() {
+  document.getElementById('up-file').value = '';
+  document.getElementById('prev-recu').style.display = 'none';
+  S.recuOk = false;
+  const btn = document.getElementById('btn-generer');
+  btn.disabled = true;
+  btn.style.opacity = '.45';
+  document.getElementById('hint-generer').textContent = 'Téléversez d\'abord votre reçu';
+  document.getElementById('hint-generer').style.color = 'var(--rouge)';
+}
+
+// ══════════════════════
+// GÉNÉRATION BILLET
+// ══════════════════════
+function genererBillet() {
+  if (!S.recuOk) return;
+  envoyerSheet({ action:'update_status', reference: S.bk.ref, statut:'Payé Wave' });
+  afficherBillet(S.bk);
+}
+
+function afficherBillet(bk) {
+  afficherEtape(6);
+  const logo = 'https://focusofficiel.github.io/FOCUS-OFFICIEL/logo.png';
+
+  const qrData = JSON.stringify({ ref:bk.ref, nom:bk.prenom+' '+bk.nom, tel:bk.tel, date:bk.ds, lieu:bk.lieu, dest:bk.dest, montant:bk.montant, issued:new Date().toISOString(), valid:true });
+  const qrToken = btoa(unescape(encodeURIComponent(qrData)));
+  const verifyUrl = window.location.origin + window.location.pathname.replace('index.html','') + 'verifier.html?t=' + qrToken;
+
+  envoyerSheet({ action:'update_status', reference:bk.ref, statut:'Billet émis' });
+
+  document.getElementById('bs6').innerHTML =
+    '<div style="background:linear-gradient(135deg,var(--vert),#145A32);color:#fff;padding:2.5rem 1.25rem;text-align:center">' +
+      '<div class="chk">✓</div>' +
+      '<div style="font-size:13px;color:rgba(255,255,255,.7);margin-bottom:4px">Réservation confirmée</div>' +
+      '<div class="cref">' + bk.ref + '</div>' +
+      '<div style="font-size:14px;color:rgba(255,255,255,.75)">Merci ' + bk.prenom + ' ! Votre place est réservée.</div>' +
+    '</div>' +
+    '<div style="background:var(--or-l);border-left:4px solid var(--or);padding:14px 18px;margin:1.25rem;border-radius:0 12px 12px 0">' +
+      '<div style="font-weight:700;margin-bottom:4px">📅 Votre rendez-vous</div>' +
+      '<div style="font-size:14px">Soyez à <strong>' + bk.lieu + '</strong> le <strong>' + bk.ds + '</strong> à <strong>' + bk.lieuTime + '</strong></div>' +
+    '</div>' +
+    '<div class="bwrap"><div class="billet">' +
+      '<div class="bh"><div class="bh-name">FOCUS Transport</div><div class="bh-ok">✓ RÉSERVÉ</div></div>' +
+      '<div class="br"><span class="k">Passager</span><span class="v">' + bk.prenom + ' ' + bk.nom + '</span></div>' +
+      '<div class="br"><span class="k">Date</span><span class="v">' + bk.ds + '</span></div>' +
+      '<div class="br"><span class="k">Départ</span><span class="v gold">' + bk.lieu + ' · ' + bk.lieuTime + '</span></div>' +
+      '<div class="br"><span class="k">Destination</span><span class="v gold">' + bk.dest + '</span></div>' +
+      '<div class="br"><span class="k">Montant</span><span class="v gold">' + bk.montant.toLocaleString('fr-FR') + ' F CFA · Wave</span></div>' +
+      '<div class="br"><span class="k">Référence</span><span class="v" style="font-family:monospace;font-size:12px">' + bk.ref + '</span></div>' +
+    '</div></div>' +
+    '<div class="qr-sec">' +
+      '<div style="font-size:11px;color:var(--gris3);text-transform:uppercase;letter-spacing:1px;margin-bottom:10px">QR Code de vérification</div>' +
+      '<div id="qr-canvas"></div>' +
+      '<div style="font-family:monospace;font-size:11px;color:var(--gris3);margin-top:8px">' + bk.ref + '</div>' +
+    '</div>' +
+    '<div style="padding:1.25rem;display:flex;flex-direction:column;gap:10px">' +
+      '<button class="btn" onclick="go(\'home\')">🏠 Retour à l\'accueil</button>' +
+      '<button class="btn-out" onclick="window.print()">🖨️ Imprimer le billet</button>' +
+    '</div>';
+
+  setTimeout(function() {
+    const el = document.getElementById('qr-canvas');
+    if (el && typeof QRCode !== 'undefined') {
+      new QRCode(el, { text: verifyUrl, width:160, height:160, colorDark:'#1A1A1A', colorLight:'#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    }
+  }, 200);
+}
+
+// ══════════════════════
+// AVIS
+// ══════════════════════
+function noter(n) {
+  noteAvis = n;
+  document.querySelectorAll('#stars .star').forEach(function(s, i) { s.classList.toggle('on', i < n); });
+}
+
+function envoyerAvis() {
+  if (noteAvis === 0) { document.getElementById('avis-err').style.display = 'block'; return; }
+  document.getElementById('avis-err').style.display = 'none';
+  envoyerSheet({ action:'avis', note:noteAvis, commentaire:document.getElementById('avis-txt').value, prenom:document.getElementById('avis-p').value, tel:document.getElementById('avis-t').value, timestamp:new Date().toISOString() });
+  document.getElementById('avis-form').style.display = 'none';
+  document.getElementById('avis-ok').style.display = 'block';
+}
+
+// ══════════════════════
+// GOOGLE SHEET
+// ══════════════════════
+function envoyerSheet(data) {
+  try { fetch(SHEET_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'application/json'}, body:JSON.stringify(data) }); } catch(e) {}
+}
+
+// ══════════════════════
+// INIT
+// ══════════════════════
+rCal();
+</script>
+</body>
+</html>
