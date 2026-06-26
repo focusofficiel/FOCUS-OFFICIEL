@@ -757,12 +757,12 @@ textarea.fi{resize:vertical;min-height:100px}
     <div class="tg2">
       <div class="typ sel" id="tb-as">
         <div class="typ-n">Aller simple</div>
-        <div class="typ-p">400 F CFA</div>
+        <div class="typ-p">Prix selon destination</div>
       </div>
       <div class="typ cs" title="Bientôt disponible">
         <div class="cs-tag">Bientôt</div>
         <div class="typ-n">Aller-retour</div>
-        <div class="typ-p">1 000 F CFA</div>
+        <div class="typ-p">Bientôt disponible</div>
       </div>
     </div>
 
@@ -824,11 +824,12 @@ textarea.fi{resize:vertical;min-height:100px}
       <div class="rr"><span class="k">Date</span><span class="v" id="r-d">—</span></div>
       <div class="rr"><span class="k">Départ</span><span class="v">6h15 · Arrivée Colobane avant 7h30</span></div>
       <div class="rr"><span class="k">Prise en charge</span><span class="v" id="r-l">—</span></div>
+      <div class="rr"><span class="k">Destination</span><span class="v" id="r-dest">—</span></div>
       <div class="rr"><span class="k">Passager</span><span class="v" id="r-p">—</span></div>
       <div class="rr"><span class="k">Téléphone</span><span class="v" id="r-t">—</span></div>
       <div class="rr"><span class="k">Type</span><span class="v">Aller simple</span></div>
     </div>
-    <div class="rt"><span style="color:var(--gris3);font-family:'Inter',sans-serif">Total à payer</span><span class="ra">400 F CFA</span></div>
+    <div class="rt"><span style="color:var(--gris3);font-family:'Inter',sans-serif">Total à payer</span><span class="ra" id="r-montant">— F CFA</span></div>
     <div id="err4" class="aerr" style="display:none;margin-top:1rem"></div>
     <div style="margin-top:1rem">
       <button class="btn-or" id="btn4" onclick="doSubmit()" style="font-family:'Inter',sans-serif">💳 Payer avec Wave →</button>
@@ -1234,10 +1235,16 @@ function fillRecap(){
   const t=document.getElementById('f-t').value.trim();
   const ds=S.date.toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
   const lieu=LIEUX.find(l=>l.id===S.lieu);
+  const destObj=DESTINATIONS.find(function(d){return d.id===S.dest;})||DESTINATIONS[0];
   document.getElementById('r-d').textContent=ds.charAt(0).toUpperCase()+ds.slice(1);
   document.getElementById('r-l').textContent=lieu?lieu.name+' ('+lieu.time+')':'—';
   document.getElementById('r-p').textContent=p+' '+n;
   document.getElementById('r-t').textContent=t;
+  // Destination et montant dynamiques
+  const rDest=document.getElementById('r-dest');
+  if(rDest) rDest.textContent=destObj.name;
+  const rM=document.getElementById('r-montant');
+  if(rM) rM.textContent=destObj.prix.toLocaleString('fr-FR')+' F CFA';
 }
 
 // ══════════════════════════════════════════════
@@ -1391,6 +1398,11 @@ function showBillet(bk){
   const qrToken  = btoa(unescape(encodeURIComponent(qrData)));
   const verifyUrl= window.location.origin + window.location.pathname.replace('index.html','') + 'verifier.html?t=' + qrToken;
 
+  // Montant dynamique dans le billet
+  setTimeout(function(){
+    const bm=document.getElementById('billet-montant');
+    if(bm&&bk.montant) bm.textContent=bk.montant.toLocaleString('fr-FR')+' F CFA · Wave';
+  },100);
   // Enregistrer dans le sheet
   sendSheet({ action:'update_status', reference: bk.ref, statut:'Billet émis' });
 
@@ -1443,7 +1455,7 @@ function showBillet(bk){
         <div class="br"><span class="k">Date</span><span class="v">${bk.ds.charAt(0).toUpperCase()+bk.ds.slice(1)}</span></div>
         <div class="br"><span class="k">Départ Gare TER</span><span class="v gold">6h15</span></div>
         <div class="br"><span class="k">Prise en charge</span><span class="v gold">${lieu.name} · ${lieu.time}</span></div>
-        <div class="br"><span class="k">Montant payé</span><span class="v gold">400 F CFA · Wave</span></div>
+        <div class="br"><span class="k">Montant payé</span><span class="v gold" id="billet-montant">— F CFA · Wave</span></div>
         <div class="br"><span class="k">Référence</span><span class="v gold" style="font-family:'Courier New',monospace;letter-spacing:1px">${bk.ref}</span></div>
       </div>
     </div>
